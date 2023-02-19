@@ -139,9 +139,9 @@ class BaseEngine(object):
         img = np.ascontiguousarray(img, dtype=np.float32)
         for _ in range(20):
             _ = self.infer(img)
-        t1 = time.perf_counter()
+        t1 = time.time()
         _ = self.infer(img)
-        print(1/(time.perf_counter() - t1), 'FPS')
+        print(1/(time.time() - t1), 'FPS')
 
 
 def nms(boxes, scores, nms_thr):

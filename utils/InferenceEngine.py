@@ -60,8 +60,8 @@ class BaseEngine(object):
         return num, final_boxes, final_scores, final_cls_inds
 
 def precise_sleep(sleep_time):
-    start_time = time.perf_counter()
+    start_time = time.time()
     while True:
-        if time.perf_counter()-start_time>=sleep_time:
+        if time.time()-start_time>=sleep_time:
             break
     

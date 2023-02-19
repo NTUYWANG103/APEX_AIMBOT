@@ -9,7 +9,7 @@ import dxcam
 from mss.windows import MSS as mss
 from rich import print
 from simple_pid import PID
-from math import atan
+from math import atan2
 from mouse_driver.MouseMove import mouse_move
 from utils.InferenceEngine import BaseEngine, precise_sleep
 from tensorrt_python.export_to_trt import export_to_trt
@@ -21,8 +21,29 @@ class ApexAim:
     def __init__(self, config_path='configs/default.yaml', onnx_path='weights/best.onnx', engine_path='weights/best.trt', detect_length=640):
         config = yaml.load(open(config_path, 'r'), Loader=yaml.FullLoader)
         self.args = argparse.Namespace(**config)
-        # self.verify_card_num()
+        # self.verify_identity()
         self.detect_length = detect_length
+        self.initialize_params()    
+        
+        # visualization and screenshot
+        self.q_visual, self.q_save = Queue(), Queue()
+        if self.args.visualization:
+            Process(target=self.visualization, args=(self.args, self.q_visual,)).start()
+        if self.args.save_screenshot:
+            Process(target=self.save_screenshot, args=(self.q_save,)).start()
+
+        # model settings
+        self.build_trt_model(onnx_path, engine_path)
+        self.engine = BaseEngine(engine_path)
+        self.initialize_camera()
+
+        if self.args.speed_test:
+            self.speed_test()
+
+        self.listener = Listener(on_click=self.on_click)
+        self.listener.start()
+    
+    def initialize_params(self):
         self.auto_lock = True
         self.locking=False
 
@@ -37,48 +58,33 @@ class ApexAim:
         self.pidx = PID(self.args.pidx_kp, self.args.pidx_kd, self.args.pidx_ki, setpoint=0, sample_time=0.001,)
         self.pidy = PID(self.args.pidy_kp, self.args.pidy_kd, self.args.pidy_ki, setpoint=0, sample_time=0.001,)
         self.pidx(0),self.pidy(0)
-        self.mouse_x, self.mouse_y = detect_length//2, detect_length//2
-        self.q_visual, self.q_save = Queue(), Queue()
+        self.mouse_x, self.mouse_y = self.detect_length//2, self.detect_length//2
+
+    def verify_identity(self):
+        login = NetLogin(self.args.card_num)
+        login.loginInit()
+        login_status = login.loginCheck()
         
-        if self.args.visualization:
-            Process(target=self.visualization, args=(self.args, self.q_visual,)).start()
-        if self.args.save_screenshot:
-            Process(target=self.save_screenshot, args=(self.q_save,)).start()
-
-        # model settings
-        self.build_trt_model(onnx_path, engine_path)
-        self.engine = BaseEngine(engine_path)
-        self.create_camera()
-
-        if self.args.speed_test:
-            self.speed_test()
-
-        self.listener = Listener(on_click=self.on_click)
-        self.listener.start()
-
-    def verify_card_num(self):
-        self.login = NetLogin(self.args.card_num)
-        self.login.loginInit()
-        re_login = self.login.loginCheck()
-        if re_login[0] == 0:
-            print(re_login[1])
+        # If login fails, print the error message and wait indefinitely
+        if login_status[0] == 0:
+            print(login_status[1])
             precise_sleep(np.Inf)
         else:
-            print(f"登陆成功, 到期时间: {re_login[1]}")
+            print(f"登陆成功, 到期时间: {login_status[1]}")
 
     def build_trt_model(self, onnx_path, engine_path):
         if not os.path.exists(engine_path):
             print('---------------------模型制作中，第一次等待时间较长(大约 10 mins)---------------------')
             export_to_trt(onnx=onnx_path, engine=engine_path)
 
-    def create_camera(self):
+    def initialize_camera(self):
         self.screen_width, self.screen_height = pyautogui.size()
-        self.base_height, self.base_width=self.screen_height//2-self.detect_length//2,self.screen_width//2-self.detect_length//2
+        self.top, self.left=self.screen_height//2-self.detect_length//2,self.screen_width//2-self.detect_length//2
         if self.args.mss:
             self.camera = mss()
-            self.region = {"top": self.base_height, "left": self.base_width, "width": self.detect_length, "height": self.detect_length}
+            self.region = {"top": self.top, "left": self.left, "width": self.detect_length, "height": self.detect_length}
         else:
-            self.camera = dxcam.create(region = (self.base_width,self.base_height,self.screen_width//2+self.detect_length//2,self.screen_height//2+self.detect_length//2))#left,top,right,bottom
+            self.camera = dxcam.create(region = (self.left,self.top,self.screen_width//2+self.detect_length//2,self.screen_height//2+self.detect_length//2))
 
     def grab_screen(self):
         if self.args.mss:
@@ -94,57 +100,67 @@ class ApexAim:
         if button == getattr(Button, self.args.auto_lock_button) and pressed:
             if self.auto_lock:
                 self.auto_lock = False
-                print('关闭自动瞄准')
+                print('自动瞄准已关闭')
             else:
                 self.auto_lock = True
-                print('开启自动瞄准')
+                print('自动瞄准已开启')
 
         # Press the left button to turn on auto aim
-        if button == getattr(Button,self.args.mouse_button) and self.auto_lock:
+        if button == getattr(Button, self.args.mouse_button) and self.auto_lock:
             if pressed:
                 self.locking = True
-                print('开启锁定...')
+                print('已开启锁定...')
             else:
                 self.locking = False
-                print('关闭锁定')
+                print('已关闭锁定')
+
+        # Print button press for debugging purposes
         if self.args.print_button:
-            print(f'按键 {button.name} 被摁下')
+            print(f'按键 {button.name} 已按下')
     
     def speed_test(self):
-        t = time.perf_counter()
+        t = time.time()
         for _ in range(100):
             img = self.grab_screen()
-        print(f'截图100次平均耗时: {(time.perf_counter()-t)/100:.3f}s 帧率: {100/(time.perf_counter()-t):.3f}FPS')
-        t = time.perf_counter()
+        print(f'截图100次平均耗时: {(time.time()-t)/100:.3f}s 帧率: {100/(time.time()-t):.3f}FPS')
+        t = time.time()
         for _ in range(100):
             self.engine.inference(img)
-        print(f'推理100次平均耗时: {(time.perf_counter()-t)/100:.3f}s 帧率: {100/(time.perf_counter()-t):.3f}FPS')
-        t = time.perf_counter()
+        print(f'推理100次平均耗时: {(time.time()-t)/100:.3f}s 帧率: {100/(time.time()-t):.3f}FPS')
+        t = time.time()
         for _ in range(100):
             self.forward()
-        print(f'总体100次平均耗时: {(time.perf_counter()-t)/100:.3f}s 帧率: {100/(time.perf_counter()-t):.3f}FPS')
+        print(f'总体100次平均耗时: {(time.time()-t)/100:.3f}s 帧率: {100/(time.time()-t):.3f}FPS')
 
-    def get_target_info(self, xyxy_list, conf_list, cls_list):
+    def get_target_info(self, boxes, confidences, classes):
         target_info_list = []
-        for xyxy, conf, cls in zip(xyxy_list, conf_list, cls_list):
-            cls_name = self.args.label_list[cls]
-            x1, y1, x2, y2 = xyxy.tolist()
-            target_x, target_y = (x1+x2)/2, (y1+y2)/2-self.args.pos_factor*(y2-y1)
-            move_dis = ((target_x-self.mouse_x)**2+(target_y-self.mouse_y)**2)**(1/2)
-            if cls_name in self.args.label_lock_list and conf >= self.args.conf and move_dis < self.args.max_lock_dis:
-                target_info_list.append({'target_x':target_x, 'target_y':target_y, 'move_dis':move_dis, 'cls_name':cls_name, 'conf':conf})
-        return sorted(target_info_list, key=lambda x: (x['cls_name'], x['move_dis'])) # priority: 1. enemy -> down 2. distance 
+        for box, conf, cls in zip(boxes, confidences, classes):
+            label = self.args.label_list[cls]
+            x1, y1, x2, y2 = box.tolist()
+            target_x, target_y = (x1 + x2) / 2, (y1 + y2) / 2 - self.args.pos_factor * (y2 - y1)
+            move_dis = ((target_x - self.mouse_x) ** 2 + (target_y - self.mouse_y) ** 2) ** (1 / 2)
+            if label in self.args.label_lock_list and conf >= self.args.conf and move_dis < self.args.max_lock_dis:
+                target_info = {'target_x': target_x, 'target_y': target_y, 'move_dis': move_dis, 'label': label, 'conf': conf}
+                target_info_list.append(target_info)
+        # Sort the list by label and then by distance
+        return sorted(target_info_list, key=lambda x: (x['label'], x['move_dis']))
+
 
     def get_move_info(self, target_info_list):
-        target_info = target_info_list[0]
+        # Get the target with the lowest label and distance
+        target_info = min(target_info_list, key=lambda x: (x['label'], x['move_dis']))
         target_x, target_y, move_dis = target_info['target_x'], target_info['target_y'], target_info['move_dis']
-        move_rel_x, move_rel_y = (target_x-self.mouse_x)*self.axis_move_factor, (target_y-self.mouse_y)*self.axis_move_factor
+        # Compute the relative movement needed to aim at the target
+        move_rel_x = (target_x - self.mouse_x) * self.axis_move_factor
+        move_rel_y = (target_y - self.mouse_y) * self.axis_move_factor
         if move_dis > self.args.max_step_dis:
-            move_rel_x = move_rel_x/move_dis*self.args.max_step_dis
-            move_rel_y = move_rel_y/move_dis*self.args.max_step_dis
+            # Limit the movement to the maximum step distance
+            move_rel_x = move_rel_x / move_dis * self.args.max_step_dis
+            move_rel_y = move_rel_y / move_dis * self.args.max_step_dis
         elif self.args.use_pid:
-            move_rel_x = self.pidx(self.args.smooth* atan(float(-move_rel_x) / self.detect_length) * self.detect_length)
-            move_rel_y = self.pidy(self.args.smooth* atan(float(-move_rel_y) / self.detect_length) * self.detect_length)
+            # Use a PID controller to smooth the movement
+            move_rel_x = self.pidx(self.args.smooth * atan2(-move_rel_x, self.detect_length) * self.detect_length)
+            move_rel_y = self.pidy(self.args.smooth * atan2(-move_rel_y, self.detect_length) * self.detect_length)
         return move_rel_x, move_rel_y, move_dis
 
     def lock(self, target_info_list):
@@ -153,15 +169,17 @@ class ApexAim:
             mouse_move(move_rel_x, move_rel_y)
         self.pidx(0), self.pidy(0)
 
-    def visualization(self, args, queue):
-        start_time = time.perf_counter()
+    def show_detection(self, args, queue):
+        start_time = time.time()
         while True:
+            # Retrieve information from queue
             img, xyxy_list, conf_list, cls_list, target_info_list = queue.get()
-            # record fps
-            fps = 1/(time.perf_counter()-start_time)
-            start_time = time.perf_counter()
+            # Record FPS
+            fps = 1/(time.time()-start_time)
+            start_time = time.time()
+            # Draw FPS on image
             cv2.putText(img, f'FPS: {fps:.2f}', (10, 30), 0, 0.7, (0, 255, 0), 2)
-            # draw detected targets
+            # Draw detected targets
             for xyxy, conf, cls in zip(xyxy_list, conf_list, cls_list):
                 cls_name = args.label_list[cls]
                 x1, y1, x2, y2 = xyxy.tolist()
@@ -169,13 +187,14 @@ class ApexAim:
                 color = (0, 255, 0) if conf > args.conf else (0, 0, 255)
                 cv2.putText(img, label, (x1, y1 - 25), 0, 0.7, color, 2)
                 cv2.rectangle(img, (x1, y1), (x2, y2), color, 2)
-            # draw locked target
+            # Draw locked target
             if len(target_info_list) > 0:
                 target_info = target_info_list[0]
                 target_x, target_y, move_dis = target_info['target_x'], target_info['target_y'], target_info['move_dis']
                 cv2.circle(img, (int(target_x), int(target_y)), 5, (255, 0, 0), -1)
                 cv2.line(img, (int(self.mouse_x), int(self.mouse_y)), (int(target_x), int(target_y)), (255, 0, 0), 2)
                 cv2.putText(img, f'{move_dis:.2f}', (int(target_x), int(target_y)), 0, 0.7, (255, 0, 0), 2)
+            # Display image
             cv2.imshow('Detection Window', cv2.cvtColor(img, cv2.COLOR_RGB2BGR))
             if cv2.waitKey(25) & 0xFF == ord('q'):
                 cv2.destroyAllWindows()
@@ -183,22 +202,22 @@ class ApexAim:
     def save_screenshot(self, queue, dir='screenshot', freq=0.2):
         if not os.path.exists(dir):
             os.makedirs(dir)
-        start_time = time.perf_counter()
+        start_time = time.time()
         while True:
             img, locking = queue.get()
-            if locking and time.perf_counter() - start_time >= freq:
+            if locking and time.time() - start_time >= freq:
                 img_bgr = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
-                cv2.imwrite(os.path.join(dir, f'{time.perf_counter():.5f}.png'), img_bgr)
-                start_time = time.perf_counter()
+                cv2.imwrite(os.path.join(dir, f'{time.time():.5f}.png'), img_bgr)
+                start_time = time.time()
 
     def forward(self):
         img = self.grab_screen()
-        _, xyxy_list, conf_list, cls_list = self.engine.inference(img)
-        target_info_list = self.get_target_info(xyxy_list, conf_list, cls_list)
+        nums, boxes, confidences, classes = self.engine.inference(img)
+        target_info_list = self.get_target_info(boxes, confidences, classes)
         self.lock(target_info_list)
 
         if self.args.visualization:
-            self.q_visual.put([img, xyxy_list, conf_list, cls_list, target_info_list])
+            self.q_visual.put([img, boxes, confidences, classes, target_info_list])
         
         if self.args.save_screenshot:
             self.q_save.put([img, self.locking])
@@ -207,9 +226,9 @@ class ApexAim:
 
 if __name__ == '__main__':
     apex = ApexAim()
-    heart_time = time.perf_counter()
+    heart_time = time.time()
     while True:
         apex.forward()
-        if time.perf_counter() - heart_time > 600:
+        if time.time() - heart_time > 600:
             apex.login.loginHeart()
-            heart_time = time.perf_counter()
+            heart_time = time.time()
