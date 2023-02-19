@@ -145,7 +145,6 @@ class ApexAim:
         # Sort the list by label and then by distance
         return sorted(target_info_list, key=lambda x: (x['label'], x['move_dis']))
 
-
     def get_move_info(self, target_info_list):
         # Get the target with the lowest label and distance
         target_info = min(target_info_list, key=lambda x: (x['label'], x['move_dis']))
@@ -169,7 +168,7 @@ class ApexAim:
             mouse_move(move_rel_x, move_rel_y)
         self.pidx(0), self.pidy(0)
 
-    def show_detection(self, args, queue):
+    def visualization(self, args, queue):
         start_time = time.time()
         while True:
             # Retrieve information from queue
@@ -199,7 +198,8 @@ class ApexAim:
             if cv2.waitKey(25) & 0xFF == ord('q'):
                 cv2.destroyAllWindows()
 
-    def save_screenshot(self, queue, dir='screenshot', freq=0.2):
+    @staticmethod
+    def save_screenshot(queue, dir='screenshot', freq=0.2):
         if not os.path.exists(dir):
             os.makedirs(dir)
         start_time = time.time()
