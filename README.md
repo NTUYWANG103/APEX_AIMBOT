@@ -16,7 +16,7 @@ copy cuda_11.3 to root, download here
 `python export_to_onnx.py --weights weights/best.pt --grid --end2end --simplify --topk-all 12 --iou-thres 0.65 --conf-thres 0.35 --img-size 640 640`
 
 # Run
-`python apex.py`
+`python main.py`
 
 # Task
 1. build UI
@@ -26,4 +26,4 @@ copy cuda_11.3 to root, download here
 # Package
 pyinstaller
 
-`pyinstaller --key lhaksklasbjhklcvb apex.py`
+`pyinstaller --key lhaksklasbjhklcvb main.py`

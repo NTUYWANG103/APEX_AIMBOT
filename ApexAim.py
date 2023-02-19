@@ -5,7 +5,6 @@ import pyautogui
 import argparse
 from pynput.mouse import Button, Listener
 import cv2
-import win32api, win32con
 import dxcam
 from mss.windows import MSS as mss
 from rich import print
@@ -14,7 +13,7 @@ from math import atan
 from mouse_driver.MouseMove import mouse_move
 from utils.InferenceEngine import BaseEngine, precise_sleep
 from tensorrt_python.export_to_trt import export_to_trt
-from netLoginUnit import NetLogin
+from utils.netLoginUnit import NetLogin
 import yaml
 from multiprocessing import Process, Queue
 
@@ -132,9 +131,7 @@ class ApexAim:
             move_dis = ((target_x-self.mouse_x)**2+(target_y-self.mouse_y)**2)**(1/2)
             if cls_name in self.args.label_lock_list and conf >= self.args.conf and move_dis < self.args.max_lock_dis:
                 target_info_list.append({'target_x':target_x, 'target_y':target_y, 'move_dis':move_dis, 'cls_name':cls_name, 'conf':conf})
-        # sort target_info_list on cls_list order, then min dis
-        target_info_list = sorted(target_info_list, key=lambda x: x['move_dis'])
-        return target_info_list
+        return sorted(target_info_list, key=lambda x: (x['cls_name'], x['move_dis'])) # priority: 1. enemy -> down 2. distance 
 
     def get_move_info(self, target_info_list):
         target_info = target_info_list[0]
