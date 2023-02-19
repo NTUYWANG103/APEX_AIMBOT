@@ -40,8 +40,8 @@ class ApexAim:
         if self.args.speed_test:
             self.speed_test()
 
-        self.listener = Listener(on_click=self.on_click)
-        self.listener.start()
+        listener = Listener(on_click=self.on_click)
+        listener.start()
     
     def initialize_params(self):
         self.auto_lock = True
@@ -88,7 +88,7 @@ class ApexAim:
 
     def grab_screen(self):
         if self.args.mss:
-            return cv2.cvtColor(np.ascontiguousarray(np.array(self.camera.grab(self.region))), cv2.COLOR_BGR2RGB)
+         return cv2.cvtColor(np.asarray(self.camera.grab(self.region)), cv2.COLOR_BGR2RGB)
         # dxcam
         while True:
             img = self.camera.grab()
@@ -172,7 +172,8 @@ class ApexAim:
         start_time = time.time()
         while True:
             # Retrieve information from queue
-            img, xyxy_list, conf_list, cls_list, target_info_list = queue.get()
+            while queue.qsize() >= 1:
+                img, xyxy_list, conf_list, cls_list, target_info_list = queue.get()
             # Record FPS
             fps = 1/(time.time()-start_time)
             start_time = time.time()
@@ -216,12 +217,12 @@ class ApexAim:
         target_info_list = self.get_target_info(boxes, confidences, classes)
         self.lock(target_info_list)
 
-        if self.args.visualization:
-            self.q_visual.put([img, boxes, confidences, classes, target_info_list])
-        
         if self.args.save_screenshot:
             self.q_save.put([img, self.locking])
 
+        if self.args.visualization:
+            self.q_visual.put([img, boxes, confidences, classes, target_info_list])
+        
         precise_sleep(self.args.delay)
 
 if __name__ == '__main__':

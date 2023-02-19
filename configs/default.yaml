@@ -4,7 +4,7 @@ card_num: test-a3eba8ea6cb8a711 #test-bf68347d0ad75a4c
 label_list: ['enemy','down','friend']
 label_lock_list: ['enemy','down']
 
-mss: False
+mss: True
 conf: 0.45
 resolution_x: 1920
 pos_factor: 0.2
@@ -23,7 +23,7 @@ mouse_button: left
 auto_lock_button: x2 # set to true to enable auto lock 
 delay: 0
 
-save_screenshot: True
+save_screenshot: False
 visualization: True
 speed_test: False
 print_button: False
