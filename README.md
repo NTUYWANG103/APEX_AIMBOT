@@ -34,7 +34,7 @@ Copy `cuda11.3 with tensorrt` to root dir [Click here to download](`https://entu
 `python main.py`
 
 # Annotate the dataset using current model
-`python utils/anno_imgs.py --datadir your_dataset_dir`
+`python utils/anno_imgs.py --data_dir your_dataset_dir`
 
 # Package
 `pyinstaller --key lhaksklasbjhklcvb main.py`
