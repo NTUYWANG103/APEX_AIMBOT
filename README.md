@@ -12,6 +12,8 @@ Features:
 - Tensorrt speed up 
 - Encrpted onnx and trt model
 - Manage users using `http://www.ruikeyz.com/`
+- Save screenshot while locking -> collect new dataset
+- Annotate images using current models -> faster annotation
 # Environment
 My envrionment using python3.7
 ```
@@ -30,6 +32,8 @@ Copy `cuda11.3 with tenssort` to root dir [Click here to download](`https://entu
 # Run
 `python main.py`
 
+# Annotate the dataset using current model
+`python utils/anno_imgs.py --datadir your_dataset_dir`
 
 # Package
 pyinstaller

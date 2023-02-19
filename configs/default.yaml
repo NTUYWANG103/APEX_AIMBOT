@@ -27,6 +27,8 @@ mouse_button: left
 auto_lock_button: x2 # set to true to enable auto lock 
 delay: 0
 
+save_screenshot: True
+
 
 
 

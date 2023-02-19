@@ -15,13 +15,15 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='YOLOV7')
     parser.add_argument('--onnx_path', type=str, default='weights/best.onnx', help='onnx path')
     parser.add_argument('--engine_path', type=str, default='weights/best.trt', help='model path')
-    parser.add_argument('--data_dir', type=str, default='data', help='model path')
+    parser.add_argument('--data_dir', type=str, default='data', help='data dir')
     args = parser.parse_args()
 
     if not os.path.exists(args.engine_path):
         print('---------------------Building engine, please wait for a while (about 10 mins)---------------------')
         export_to_trt(onnx=args.onnx_path, engine=args.engine_path)
+
     image_dir = os.path.join(args.data_dir, 'images')
+    assert os.path.exists(image_dir)
     label_dir = os.path.join(args.data_dir, 'labels')
     if not os.path.exists(label_dir):
         os.mkdir(label_dir)

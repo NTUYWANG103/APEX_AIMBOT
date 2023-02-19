@@ -38,10 +38,12 @@ class ApexAim:
         self.pidy = PID(self.args.pidy_kp, self.args.pidy_kd, self.args.pidy_ki, setpoint=0, sample_time=0.001,)
         self.pidx(0),self.pidy(0)
         self.mouse_x, self.mouse_y = detect_length//2, detect_length//2
-        self.queue = Queue()
+        self.q_visual, self.q_save = Queue(), Queue()
         
         if self.args.visualization:
-            Process(target=self.visualization, args=(self.args, self.queue,)).start()
+            Process(target=self.visualization, args=(self.args, self.q_visual,)).start()
+        if self.args.save_screenshot:
+            Process(target=self.save_screenshot, args=(self.q_save,)).start()
 
         # model settings
         self.build_trt_model(onnx_path, engine_path)
@@ -178,6 +180,17 @@ class ApexAim:
             if cv2.waitKey(25) & 0xFF == ord('q'):
                 cv2.destroyAllWindows()
 
+    def save_screenshot(self, queue, dir='screenshot', freq=0.2):
+        if not os.path.exists(dir):
+            os.makedirs(dir)
+        start_time = time.perf_counter()
+        while True:
+            img, locking = queue.get()
+            if locking and time.perf_counter() - start_time >= freq:
+                img_bgr = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
+                cv2.imwrite(os.path.join(dir, f'{time.perf_counter():.5f}.png'), img_bgr)
+                start_time = time.perf_counter()
+
     def forward(self):
         img = self.grab_screen()
         _, xyxy_list, conf_list, cls_list = self.engine.inference(img)
@@ -185,7 +198,10 @@ class ApexAim:
         self.lock(target_info_list)
 
         if self.args.visualization:
-            self.queue.put([img, xyxy_list, conf_list, cls_list, target_info_list])
+            self.q_visual.put([img, xyxy_list, conf_list, cls_list, target_info_list])
+        
+        if self.args.save_screenshot:
+            self.q_save.put([img, self.locking])
 
         precise_sleep(self.args.delay)
 
