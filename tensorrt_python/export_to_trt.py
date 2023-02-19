@@ -114,7 +114,7 @@ class EngineBuilder:
         self.network = None
         self.parser = None
 
-    def create_network(self, onnx_path, end2end, conf_thres, iou_thres, max_det):
+    def create_network(self, onnx_path, end2end, conf_thres, iou_thres, max_det, encryp_password):
         """
         Parse the ONNX graph and create the corresponding TensorRT network definition.
         :param onnx_path: The path to the ONNX graph to load.
@@ -126,7 +126,7 @@ class EngineBuilder:
 
         onnx_path = os.path.realpath(onnx_path)
         with open(onnx_path, "rb") as f:
-            fw = Fernet('s-hYSuK2Uu24huh8264CRagzv5WtGFlbx46i0k8tJzs=')
+            fw = Fernet(encryp_password)
             onnx_data = fw.decrypt(f.read())
             if not self.parser.parse(onnx_data):
                 print("Failed to load ONNX file: {}".format(onnx_path))
@@ -202,7 +202,7 @@ class EngineBuilder:
 
 
     def create_engine(self, engine_path, precision, calib_input=None, calib_cache=None, calib_num_images=5000,
-                      calib_batch_size=8):
+                      calib_batch_size=8, encryp_password=''):
         """
         Build the TensorRT engine and serialize it to disk.
         :param engine_path: The path where to serialize the engine to.
@@ -246,13 +246,13 @@ class EngineBuilder:
         with self.builder.build_engine(self.network, self.config) as engine, open(engine_path, "wb") as f:
             print("Serializing engine to file: {:}".format(engine_path))
             f.write(engine.serialize())
-            fw = Fernet('s-hYSuK2Uu24huh8264CRagzv5WtGFlbx46i0k8tJzs=')
+            fw = Fernet(encryp_password)
             with open(engine_path, 'rb') as f:
                 serialized_engine = f.read()
             with open(engine_path, "wb") as f:
                 f.write(fw.encrypt(serialized_engine))
 
-def export_trt(onnx=None, engine=None):
+def export_to_trt(onnx=None, engine=None):
     parser = argparse.ArgumentParser()
     parser.add_argument("-o", "--onnx", help="The input ONNX model file to load")
     parser.add_argument("-e", "--engine", help="The output path for the TRT engine")
@@ -276,6 +276,7 @@ def export_trt(onnx=None, engine=None):
                         help="The iou threshold for the nms, default: 0.5")
     parser.add_argument("--max_det", default=100, type=int,
                         help="The total num for results, default: 100")
+    parser.add_argument("--encryp_password", default='s-hYSuK2Uu24huh8264CRagzv5WtGFlbx46i0k8tJzs=', type=str)
     args = parser.parse_args()
     if onnx is None:
         args.onnx = 'weights/best.onnx'
@@ -286,9 +287,9 @@ def export_trt(onnx=None, engine=None):
     else:
         args.engine = engine
     builder = EngineBuilder(args.verbose, args.workspace)
-    builder.create_network(args.onnx, args.end2end, args.conf_thres, args.iou_thres, args.max_det)
+    builder.create_network(args.onnx, args.end2end, args.conf_thres, args.iou_thres, args.max_det, args.encryp_password)
     builder.create_engine(args.engine, args.precision, args.calib_input, args.calib_cache, args.calib_num_images,
-                          args.calib_batch_size)
+                          args.calib_batch_size, args.encryp_password)
 
 # if __name__ == "__main__":
 #     parser = argparse.ArgumentParser()
@@ -326,6 +327,6 @@ def export_trt(onnx=None, engine=None):
 #         log.error("When building in int8 precision, --calib_input or an existing --calib_cache file is required")
 #         sys.exit(1)
     
-#     export_trt(args)
+#     export_to_trt(args)
 
 

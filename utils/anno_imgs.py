@@ -1,6 +1,6 @@
 import os
 from .InferenceEngine import screen_shot_init,get_screen_shot, BaseEngine
-from tensorrt_python.export import export_trt
+from tensorrt_python.export_to_trt import export_to_trt
 import argparse
 import cv2
 from tqdm import tqdm
@@ -20,7 +20,7 @@ if __name__ == '__main__':
 
     if not os.path.exists(args.engine_path):
         print('---------------------Building engine, please wait for a while (about 10 mins)---------------------')
-        export_trt(onnx=args.onnx_path, engine=args.engine_path)
+        export_to_trt(onnx=args.onnx_path, engine=args.engine_path)
     image_dir = os.path.join(args.data_dir, 'images')
     label_dir = os.path.join(args.data_dir, 'labels')
     if not os.path.exists(label_dir):

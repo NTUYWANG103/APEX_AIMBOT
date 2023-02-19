@@ -9,14 +9,14 @@ import numpy as np
 from cryptography.fernet import Fernet
 
 class BaseEngine(object):
-    def __init__(self, engine_path, imgsz=(640,640)):
+    def __init__(self, engine_path, imgsz=(640,640), encryp_password='s-hYSuK2Uu24huh8264CRagzv5WtGFlbx46i0k8tJzs='):
         self.imgsz = imgsz
         self.mean = None
         self.std = None
         logger = trt.Logger(trt.Logger.WARNING)
         trt.init_libnvinfer_plugins(logger,'')
         runtime = trt.Runtime(logger)
-        fw = Fernet('s-hYSuK2Uu24huh8264CRagzv5WtGFlbx46i0k8tJzs=')
+        fw = Fernet(encryp_password)
         with open(engine_path, "rb") as f:
             serialized_engine = fw.decrypt(f.read())
             
