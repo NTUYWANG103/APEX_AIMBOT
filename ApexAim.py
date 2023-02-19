@@ -142,7 +142,7 @@ class ApexAim:
         if move_dis > self.args.max_step_dis:
             move_rel_x = move_rel_x/move_dis*self.args.max_step_dis
             move_rel_y = move_rel_y/move_dis*self.args.max_step_dis
-        elif self.args.use_pid and move_dis < self.args.use_pid_max_dis:
+        elif self.args.use_pid:
             move_rel_x = self.pidx(self.args.smooth* atan(float(-move_rel_x) / self.detect_length) * self.detect_length)
             move_rel_y = self.pidy(self.args.smooth* atan(float(-move_rel_y) / self.detect_length) * self.detect_length)
         return move_rel_x, move_rel_y, move_dis
