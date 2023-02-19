@@ -1,0 +1,31 @@
+card_num: test-a3eba8ea6cb8a711 #test-bf68347d0ad75a4c
+
+# Hyperparameters
+label_list: ['enemy','down','friend']
+speed_test: True
+mss: True
+visualization: False
+conf: 0.45
+target_label_list: ['enemy','down']
+resolution_x: 1920
+pos_factor: 0.2
+smooth: 0.7140350877192984
+max_lock_dis: 150
+max_step_dis: 80
+max_shoot_dis: 50
+use_pid: True
+use_pid_max_dis: 80
+pidx_kp: 1.2
+pidx_kd: 3.51
+pidx_ki: 0.0
+pidy_kp: 1.22
+pidy_kd: 0.12
+pidy_ki: 0.0
+print_button: False
+mouse_button: left
+auto_shoot: False
+delay: 0.005
+
+
+
+
