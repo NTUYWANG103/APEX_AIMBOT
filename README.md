@@ -13,7 +13,7 @@ Features:
 - Encrpted onnx and trt model
 - Manage users using `http://www.ruikeyz.com/`
 # Environment
-Use python3.7
+My envrionment using python3.7
 ```
 git clone https://github.com/NTUYWANG103/APEX_deploy.git
 conda create -n apex python=3.7
