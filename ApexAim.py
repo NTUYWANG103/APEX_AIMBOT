@@ -16,7 +16,7 @@ from utils.InferenceEngine import BaseEngine, precise_sleep
 from tensorrt_python.export_to_trt import export_to_trt
 from netLoginUnit import NetLogin
 import yaml
-from multiprocessing import Process
+from multiprocessing import Process, Queue
 
 class ApexAim:
     def __init__(self, config_path='configs/default.yaml', onnx_path='weights/best.onnx', engine_path='weights/best.trt', detect_length=640):
@@ -39,19 +39,21 @@ class ApexAim:
         self.pidy = PID(self.args.pidy_kp, self.args.pidy_kd, self.args.pidy_ki, setpoint=0, sample_time=0.001,)
         self.pidx(0),self.pidy(0)
         self.mouse_x, self.mouse_y = detect_length//2, detect_length//2
+        self.queue = Queue()
         
-        self.listener = Listener(on_click=self.on_click)
-        self.listener.start()
+        if self.args.visualization:
+            Process(target=self.visualization, args=(self.args, self.queue,)).start()
 
         # model settings
         self.build_trt_model(onnx_path, engine_path)
         self.engine = BaseEngine(engine_path)
         self.create_camera()
 
-        # speed test
         if self.args.speed_test:
             self.speed_test()
-        self.start_time = time.perf_counter()
+
+        self.listener = Listener(on_click=self.on_click)
+        self.listener.start()
 
     def verify_card_num(self):
         self.login = NetLogin(self.args.card_num)
@@ -121,20 +123,22 @@ class ApexAim:
             self.forward()
         print(f'总体100次平均耗时: {(time.perf_counter()-t)/100:.3f}s 帧率: {100/(time.perf_counter()-t):.3f}FPS')
 
-    def get_target_info(self):
-        self.target_info_list = []
-        for xyxy, conf, cls in zip(self.xyxy_list, self.conf_list, self.cls_list):
+    def get_target_info(self, xyxy_list, conf_list, cls_list):
+        target_info_list = []
+        for xyxy, conf, cls in zip(xyxy_list, conf_list, cls_list):
             cls_name = self.args.label_list[cls]
             x1, y1, x2, y2 = xyxy.tolist()
             target_x, target_y = (x1+x2)/2, (y1+y2)/2-self.args.pos_factor*(y2-y1)
             move_dis = ((target_x-self.mouse_x)**2+(target_y-self.mouse_y)**2)**(1/2)
             if cls_name in self.args.label_lock_list and conf >= self.args.conf and move_dis < self.args.max_lock_dis:
-                self.target_info_list.append({'target_x':target_x, 'target_y':target_y, 'move_dis':move_dis, 'cls_name':cls_name, 'conf':conf})
+                target_info_list.append({'target_x':target_x, 'target_y':target_y, 'move_dis':move_dis, 'cls_name':cls_name, 'conf':conf})
         # sort target_info_list on cls_list order, then min dis
-        self.target_info_list = sorted(self.target_info_list, key=lambda x: x['move_dis'])
+        target_info_list = sorted(target_info_list, key=lambda x: x['move_dis'])
+        return target_info_list
 
-    def get_move_info(self):
-        target_x, target_y, move_dis = self.target_info_list[0]['target_x'], self.target_info_list[0]['target_y'], self.target_info_list[0]['move_dis']
+    def get_move_info(self, target_info_list):
+        target_info = target_info_list[0]
+        target_x, target_y, move_dis = target_info['target_x'], target_info['target_y'], target_info['move_dis']
         move_rel_x, move_rel_y = (target_x-self.mouse_x)*self.axis_move_factor, (target_y-self.mouse_y)*self.axis_move_factor
         if move_dis > self.args.max_step_dis:
             move_rel_x = move_rel_x/move_dis*self.args.max_step_dis
@@ -144,43 +148,47 @@ class ApexAim:
             move_rel_y = self.pidy(self.args.smooth* atan(float(-move_rel_y) / self.detect_length) * self.detect_length)
         return move_rel_x, move_rel_y, move_dis
 
-    def lock(self):
-        if len(self.target_info_list) > 0 and self.locking:
-            move_rel_x, move_rel_y, move_dis = self.get_move_info()
+    def lock(self, target_info_list):
+        if len(target_info_list) > 0 and self.locking:
+            move_rel_x, move_rel_y, move_dis = self.get_move_info(target_info_list)
             mouse_move(move_rel_x, move_rel_y)
         self.pidx(0), self.pidy(0)
 
-    def visualization(self):
-        # record fps
-        fps = 1/(time.perf_counter()-self.start_time)
-        self.start_time = time.perf_counter()
-        cv2.putText(self.img, f'FPS: {fps:.2f}', (10, 30), 0, 0.7, (0, 255, 0), 2)
-        # draw detected targets
-        for xyxy, conf, cls in zip(self.xyxy_list, self.conf_list, self.cls_list):
-            cls_name = self.args.label_list[cls]
-            x1, y1, x2, y2 = xyxy.tolist()
-            label = f'{cls_name} {conf:.2f}'
-            color = (0, 255, 0) if conf > self.args.conf else (0, 0, 255)
-            cv2.putText(self.img, label, (x1, y1 - 25), 0, 0.7, color, 2)
-            cv2.rectangle(self.img, (x1, y1), (x2, y2), color, 2)
-        # draw locked target
-        if len(self.target_info_list) > 0:
-            target_x, target_y, move_dis = self.target_info_list[0]['target_x'], self.target_info_list[0]['target_y'], self.target_info_list[0]['move_dis']
-            cv2.circle(self.img, (int(target_x), int(target_y)), 5, (255, 0, 0), -1)
-            cv2.line(self.img, (int(self.mouse_x), int(self.mouse_y)), (int(target_x), int(target_y)), (255, 0, 0), 2)
-            cv2.putText(self.img, f'{move_dis:.2f}', (int(target_x), int(target_y)), 0, 0.7, (255, 0, 0), 2)
-        cv2.imshow('Detection Window', cv2.cvtColor(self.img, cv2.COLOR_RGB2BGR))
-        if cv2.waitKey(25) & 0xFF == ord('q'):
-            cv2.destroyAllWindows()
+    def visualization(self, args, queue):
+        start_time = time.perf_counter()
+        while True:
+            img, xyxy_list, conf_list, cls_list, target_info_list = queue.get()
+            # record fps
+            fps = 1/(time.perf_counter()-start_time)
+            start_time = time.perf_counter()
+            cv2.putText(img, f'FPS: {fps:.2f}', (10, 30), 0, 0.7, (0, 255, 0), 2)
+            # draw detected targets
+            for xyxy, conf, cls in zip(xyxy_list, conf_list, cls_list):
+                cls_name = args.label_list[cls]
+                x1, y1, x2, y2 = xyxy.tolist()
+                label = f'{cls_name} {conf:.2f}'
+                color = (0, 255, 0) if conf > args.conf else (0, 0, 255)
+                cv2.putText(img, label, (x1, y1 - 25), 0, 0.7, color, 2)
+                cv2.rectangle(img, (x1, y1), (x2, y2), color, 2)
+            # draw locked target
+            if len(target_info_list) > 0:
+                target_info = target_info_list[0]
+                target_x, target_y, move_dis = target_info['target_x'], target_info['target_y'], target_info['move_dis']
+                cv2.circle(img, (int(target_x), int(target_y)), 5, (255, 0, 0), -1)
+                cv2.line(img, (int(self.mouse_x), int(self.mouse_y)), (int(target_x), int(target_y)), (255, 0, 0), 2)
+                cv2.putText(img, f'{move_dis:.2f}', (int(target_x), int(target_y)), 0, 0.7, (255, 0, 0), 2)
+            cv2.imshow('Detection Window', cv2.cvtColor(img, cv2.COLOR_RGB2BGR))
+            if cv2.waitKey(25) & 0xFF == ord('q'):
+                cv2.destroyAllWindows()
 
     def forward(self):
-        self.img = self.grab_screen()
-        _, self.xyxy_list, self.conf_list, self.cls_list = self.engine.inference(self.img)
-        self.get_target_info()
-        self.lock()
+        img = self.grab_screen()
+        _, xyxy_list, conf_list, cls_list = self.engine.inference(img)
+        target_info_list = self.get_target_info(xyxy_list, conf_list, cls_list)
+        self.lock(target_info_list)
 
         if self.args.visualization:
-            self.visualization()
+            self.queue.put([img, xyxy_list, conf_list, cls_list, target_info_list])
 
         precise_sleep(self.args.delay)
 

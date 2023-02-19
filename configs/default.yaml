@@ -5,7 +5,7 @@ label_list: ['enemy','down','friend']
 label_lock_list: ['enemy','down']
 
 speed_test: False
-mss: True
+mss: False
 visualization: True
 conf: 0.45
 resolution_x: 1920
@@ -25,7 +25,7 @@ pidy_ki: 0.0
 print_button: False
 mouse_button: left
 auto_lock_button: x2 # set to true to enable auto lock 
-delay: 0.005
+delay: 0
 
 
 
