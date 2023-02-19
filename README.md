@@ -14,6 +14,7 @@ Features:
 - Manage users using `http://www.ruikeyz.com/`
 - Save screenshot while locking -> collect new dataset
 - Annotate images using current models -> faster annotation
+- Package to exe
 # Environment
 My envrionment uses python3.7
 ```
@@ -36,6 +37,5 @@ Copy `cuda11.3 with tensorrt` to root dir [Click here to download](`https://entu
 `python utils/anno_imgs.py --datadir your_dataset_dir`
 
 # Package
-pyinstaller
-
 `pyinstaller --key lhaksklasbjhklcvb main.py`
+copy `mouse_driver/ghub_mouse.dll`, `mouse_driver/msdk.dll`, `cuda_11.3` to the package directory
