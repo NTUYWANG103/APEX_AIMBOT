@@ -1,4 +1,4 @@
-card_num: test-a3eba8ea6cb8a711 #test-bf68347d0ad75a4c
+card_num: test-bf68347d0ad75a4c 
 
 # Hyperparameters
 label_list: ['enemy','down','friend']

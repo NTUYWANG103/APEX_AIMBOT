@@ -21,7 +21,7 @@ class ApexAim:
     def __init__(self, config_path='configs/default.yaml', onnx_path='weights/best.onnx', engine_path='weights/best.trt', detect_length=640):
         config = yaml.load(open(config_path, 'r'), Loader=yaml.FullLoader)
         self.args = argparse.Namespace(**config)
-        # self.verify_identity()
+        self.verify_identity()
         self.detect_length = detect_length
         self.initialize_params()    
         self.build_trt_model(onnx_path, engine_path)
@@ -169,6 +169,7 @@ class ApexAim:
         self.pidx(0), self.pidy(0)
 
     def visualization(self, args, queue):
+        precise_sleep(1)
         start_time = time.perf_counter()
         while True:
             # Retrieve information from queue
