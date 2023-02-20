@@ -16,12 +16,13 @@ from tensorrt_python.export_to_trt import export_to_trt
 from utils.netLoginUnit import NetLogin
 import yaml
 from multiprocessing import Process, Queue
+from functools import wraps
 
 class ApexAim:
     def __init__(self, config_path='configs/default.yaml', onnx_path='weights/best.onnx', engine_path='weights/best.trt', detect_length=640):
         config = yaml.load(open(config_path, 'r'), Loader=yaml.FullLoader)
         self.args = argparse.Namespace(**config)
-        self.verify_identity()
+        # self.verify_identity()
         self.detect_length = detect_length
         self.initialize_params()    
         self.build_trt_model(onnx_path, engine_path)
@@ -169,17 +170,12 @@ class ApexAim:
         self.pidx(0), self.pidy(0)
 
     def visualization(self, args, queue):
-        precise_sleep(1)
-        start_time = time.perf_counter()
         while True:
             # Retrieve information from queue
             while queue.qsize() >= 1:
-                img, xyxy_list, conf_list, cls_list, target_sort_list = queue.get()
-            # Record FPS
-            fps = 1/(time.perf_counter()-start_time)
-            start_time = time.perf_counter()
+                img, xyxy_list, conf_list, cls_list, target_sort_list, fps_track = queue.get()
             # Draw FPS on image
-            cv2.putText(img, f'FPS: {fps:.2f}', (10, 30), 0, 0.7, (0, 255, 0), 2)
+            cv2.putText(img, f'FPS: {fps_track:.2f}', (10, 30), 0, 0.7, (0, 255, 0), 2)
             # Draw detected targets
             for xyxy, conf, cls in zip(xyxy_list, conf_list, cls_list):
                 cls_name = args.label_list[cls]
@@ -216,16 +212,18 @@ class ApexAim:
                 start_time = time.time()
 
     def forward(self):
+        start_time = time.time()
         img = self.grab_screen()
         nums, boxes, confidences, classes = self.engine.inference(img)
         target_sort_list = self.sort_target(boxes, confidences, classes)
         self.lock(target_sort_list)
+        fps_track = 1/(time.time()-start_time)
 
         if self.args.save_screenshot:
             self.q_save.put([img, self.locking, nums])
 
         if self.args.visualization:
-            self.q_visual.put([img, boxes, confidences, classes, target_sort_list])
+            self.q_visual.put([img, boxes, confidences, classes, target_sort_list, fps_track])
         
         precise_sleep(self.args.delay)
 

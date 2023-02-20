@@ -23,7 +23,7 @@ mouse_button: left
 auto_lock_button: x1 # set to true to enable auto lock 
 delay: 0.02
 
-save_screenshot: True
+save_screenshot: False
 visualization: True
 speed_test: False
 print_button: False
