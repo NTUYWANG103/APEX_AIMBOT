@@ -12,7 +12,7 @@ Features:
 - Tensorrt speed up 
 - Encrpted onnx and trt model
 - Manage users using `http://www.ruikeyz.com/`
-- Save screenshot while locking -> collect new dataset
+- Save screenshot while locking or detected -> collect new dataset (false positive and negative)
 - Annotate images using current models -> faster annotation
 - Package to exe
 # Environment
