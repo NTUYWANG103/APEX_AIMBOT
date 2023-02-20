@@ -169,14 +169,14 @@ class ApexAim:
         self.pidx(0), self.pidy(0)
 
     def visualization(self, args, queue):
-        start_time = time.time()
+        start_time = time.perf_counter()
         while True:
             # Retrieve information from queue
             while queue.qsize() >= 1:
                 img, xyxy_list, conf_list, cls_list, target_sort_list = queue.get()
             # Record FPS
-            fps = 1/(time.time()-start_time)
-            start_time = time.time()
+            fps = 1/(time.perf_counter()-start_time)
+            start_time = time.perf_counter()
             # Draw FPS on image
             cv2.putText(img, f'FPS: {fps:.2f}', (10, 30), 0, 0.7, (0, 255, 0), 2)
             # Draw detected targets
