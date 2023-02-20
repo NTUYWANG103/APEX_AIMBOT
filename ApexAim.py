@@ -184,7 +184,10 @@ class ApexAim:
                 cls_name = args.label_list[cls]
                 x1, y1, x2, y2 = xyxy.tolist()
                 label = f'{cls_name} {conf:.2f}'
-                color = (0, 255, 0) if conf > args.conf else (0, 0, 255)
+                if conf > args.conf:
+                    color = (255, 0, 0) if cls_name == 'enemy' else (0, 255, 0)
+                else:
+                    color = (0, 0, 255)
                 cv2.putText(img, label, (x1, y1 - 25), 0, 0.7, color, 2)
                 cv2.rectangle(img, (x1, y1), (x2, y2), color, 2)
             # Draw locked target
