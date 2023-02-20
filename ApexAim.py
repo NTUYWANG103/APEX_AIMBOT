@@ -132,8 +132,8 @@ class ApexAim:
             self.forward()
         print(f'总体100次平均耗时: {(time.time()-t)/100:.3f}s 帧率: {100/(time.time()-t):.3f}FPS')
 
-    def get_target_info(self, boxes, confidences, classes):
-        target_info_list = []
+    def sort_target(self, boxes, confidences, classes):
+        target_sort_list = []
         for box, conf, cls in zip(boxes, confidences, classes):
             label = self.args.label_list[cls]
             x1, y1, x2, y2 = box.tolist()
@@ -141,13 +141,13 @@ class ApexAim:
             move_dis = ((target_x - self.mouse_x) ** 2 + (target_y - self.mouse_y) ** 2) ** (1 / 2)
             if label in self.args.label_lock_list and conf >= self.args.conf and move_dis < self.args.max_lock_dis:
                 target_info = {'target_x': target_x, 'target_y': target_y, 'move_dis': move_dis, 'label': label, 'conf': conf}
-                target_info_list.append(target_info)
+                target_sort_list.append(target_info)
         # Sort the list by label and then by distance
-        return sorted(target_info_list, key=lambda x: (x['label'], x['move_dis']))
+        return sorted(target_sort_list, key=lambda x: (x['label'], x['move_dis']))
 
-    def get_move_info(self, target_info_list):
+    def get_move_dis(self, target_sort_list):
         # Get the target with the lowest label and distance
-        target_info = min(target_info_list, key=lambda x: (x['label'], x['move_dis']))
+        target_info = min(target_sort_list, key=lambda x: (x['label'], x['move_dis']))
         target_x, target_y, move_dis = target_info['target_x'], target_info['target_y'], target_info['move_dis']
         # Compute the relative movement needed to aim at the target
         move_rel_x = (target_x - self.mouse_x) * self.axis_move_factor
@@ -162,9 +162,9 @@ class ApexAim:
             move_rel_y = self.pidy(self.args.smooth * atan2(-move_rel_y, self.detect_length) * self.detect_length)
         return move_rel_x, move_rel_y, move_dis
 
-    def lock(self, target_info_list):
-        if len(target_info_list) > 0 and self.locking:
-            move_rel_x, move_rel_y, move_dis = self.get_move_info(target_info_list)
+    def lock(self, target_sort_list):
+        if len(target_sort_list) > 0 and self.locking:
+            move_rel_x, move_rel_y, move_dis = self.get_move_dis(target_sort_list)
             mouse_move(move_rel_x, move_rel_y)
         self.pidx(0), self.pidy(0)
 
@@ -173,7 +173,7 @@ class ApexAim:
         while True:
             # Retrieve information from queue
             while queue.qsize() >= 1:
-                img, xyxy_list, conf_list, cls_list, target_info_list = queue.get()
+                img, xyxy_list, conf_list, cls_list, target_sort_list = queue.get()
             # Record FPS
             fps = 1/(time.time()-start_time)
             start_time = time.time()
@@ -188,8 +188,8 @@ class ApexAim:
                 cv2.putText(img, label, (x1, y1 - 25), 0, 0.7, color, 2)
                 cv2.rectangle(img, (x1, y1), (x2, y2), color, 2)
             # Draw locked target
-            if len(target_info_list) > 0:
-                target_info = target_info_list[0]
+            if len(target_sort_list) > 0:
+                target_info = target_sort_list[0]
                 target_x, target_y, move_dis = target_info['target_x'], target_info['target_y'], target_info['move_dis']
                 cv2.circle(img, (int(target_x), int(target_y)), 5, (255, 0, 0), -1)
                 cv2.line(img, (int(self.mouse_x), int(self.mouse_y)), (int(target_x), int(target_y)), (255, 0, 0), 2)
@@ -214,14 +214,14 @@ class ApexAim:
     def forward(self):
         img = self.grab_screen()
         nums, boxes, confidences, classes = self.engine.inference(img)
-        target_info_list = self.get_target_info(boxes, confidences, classes)
-        self.lock(target_info_list)
+        target_sort_list = self.sort_target(boxes, confidences, classes)
+        self.lock(target_sort_list)
 
         if self.args.save_screenshot:
             self.q_save.put([img, self.locking, nums])
 
         if self.args.visualization:
-            self.q_visual.put([img, boxes, confidences, classes, target_info_list])
+            self.q_visual.put([img, boxes, confidences, classes, target_sort_list])
         
         precise_sleep(self.args.delay)
 
