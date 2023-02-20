@@ -18,7 +18,7 @@ Features:
 # Environment
 My envrionment uses python3.7
 ```
-git clone https://github.com/NTUYWANG103/APEX_deploy.git
+git clone hhttps://github.com/NTUYWANG103/APEX_AIM_ASSISTANT.git
 conda create -n apex python=3.7
 conda activate apex
 pip install pipwin
