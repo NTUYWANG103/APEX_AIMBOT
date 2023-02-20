@@ -205,8 +205,8 @@ class ApexAim:
             os.makedirs(dir)
         start_time = time.time()
         while True:
-            img, locking = queue.get()
-            if locking and time.time() - start_time >= freq:
+            img, locking, nums = queue.get()
+            if (locking or nums > 0) and (time.time() - start_time >= freq): # having bounding boxes or locking will get screenshot
                 img_bgr = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
                 cv2.imwrite(os.path.join(dir, f'{time.time():.5f}.png'), img_bgr)
                 start_time = time.time()
@@ -218,7 +218,7 @@ class ApexAim:
         self.lock(target_info_list)
 
         if self.args.save_screenshot:
-            self.q_save.put([img, self.locking])
+            self.q_save.put([img, self.locking, nums])
 
         if self.args.visualization:
             self.q_visual.put([img, boxes, confidences, classes, target_info_list])
