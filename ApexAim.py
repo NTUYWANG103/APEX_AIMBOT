@@ -200,7 +200,7 @@ class ApexAim:
                 cv2.destroyAllWindows()
 
     @staticmethod
-    def save_screenshot(queue, dir='screenshot', freq=0.2):
+    def save_screenshot(queue, dir='screenshot', freq=0.5):
         if not os.path.exists(dir):
             os.makedirs(dir)
         start_time = time.time()
