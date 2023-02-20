@@ -24,6 +24,7 @@ class ApexAim:
         # self.verify_identity()
         self.detect_length = detect_length
         self.initialize_params()    
+        self.build_trt_model(onnx_path, engine_path)
         
         # visualization and screenshot
         self.q_visual, self.q_save = Queue(), Queue()
@@ -33,7 +34,6 @@ class ApexAim:
             Process(target=self.save_screenshot, args=(self.q_save,)).start()
 
         # model settings
-        self.build_trt_model(onnx_path, engine_path)
         self.engine = BaseEngine(engine_path)
         self.initialize_camera()
 

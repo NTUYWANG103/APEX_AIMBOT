@@ -170,3 +170,4 @@ cython_debug/
 /weights_backup
 /cuda_11.3
 /env_copy
+package_copy
