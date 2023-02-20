@@ -163,7 +163,7 @@ class ApexAim:
             move_rel_y = self.pidy(self.args.smooth * atan2(-move_rel_y, self.detect_length) * self.detect_length)
         return move_rel_x, move_rel_y, move_dis
 
-    def lock(self, target_sort_list):
+    def lock_target(self, target_sort_list):
         if len(target_sort_list) > 0 and self.locking:
             move_rel_x, move_rel_y, move_dis = self.get_move_dis(target_sort_list)
             mouse_move(move_rel_x, move_rel_y)
@@ -216,7 +216,7 @@ class ApexAim:
         img = self.grab_screen()
         nums, boxes, confidences, classes = self.engine.inference(img)
         target_sort_list = self.sort_target(boxes, confidences, classes)
-        self.lock(target_sort_list)
+        self.lock_target(target_sort_list)
         fps_track = 1/(time.time()-start_time)
 
         if self.args.save_screenshot:
