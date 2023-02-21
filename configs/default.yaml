@@ -9,7 +9,7 @@ conf: 0.35
 resolution_x: 1920
 pos_factor: 0.2
 smooth: 0.7140350877192984
-max_lock_dis: 80
+max_lock_dis: 100
 max_step_dis: 80
 
 use_pid: True
@@ -21,7 +21,7 @@ pidy_kd: 0.12
 pidy_ki: 0.0
 mouse_button: left
 auto_lock_button: x1 # set to true to enable auto lock 
-delay: 0.02
+delay: 0.032
 
 save_screenshot: False
 visualization: True

@@ -5,7 +5,6 @@ import pyautogui
 import argparse
 from pynput.mouse import Button, Listener
 import cv2
-import dxcam
 from mss.windows import MSS as mss
 from rich import print
 from simple_pid import PID
@@ -58,7 +57,7 @@ class ApexAim:
         self.pidx = PID(self.args.pidx_kp, self.args.pidx_kd, self.args.pidx_ki, setpoint=0, sample_time=0.001,)
         self.pidy = PID(self.args.pidy_kp, self.args.pidy_kd, self.args.pidy_ki, setpoint=0, sample_time=0.001,)
         self.pidx(0),self.pidy(0)
-        self.mouse_x, self.mouse_y = self.detect_length//2, self.detect_length//2
+        self.detect_center_x, self.detect_center_y = self.detect_length//2, self.detect_length//2
 
     def verify_identity(self):
         login = NetLogin(self.args.card_num)
@@ -80,20 +79,11 @@ class ApexAim:
     def initialize_camera(self):
         self.screen_width, self.screen_height = pyautogui.size()
         self.top, self.left=self.screen_height//2-self.detect_length//2,self.screen_width//2-self.detect_length//2
-        if self.args.mss:
-            self.camera = mss()
-            self.region = {"top": self.top, "left": self.left, "width": self.detect_length, "height": self.detect_length}
-        else:
-            self.camera = dxcam.create(region = (self.left,self.top,self.screen_width//2+self.detect_length//2,self.screen_height//2+self.detect_length//2))
+        self.camera = mss()
+        self.region = {"top": self.top, "left": self.left, "width": self.detect_length, "height": self.detect_length}
 
     def grab_screen(self):
-        if self.args.mss:
-         return cv2.cvtColor(np.asarray(self.camera.grab(self.region)), cv2.COLOR_BGR2RGB)
-        # dxcam
-        while True:
-            img = self.camera.grab()
-            if img is not None:
-                return img
+        return cv2.cvtColor(np.asarray(self.camera.grab(self.region)), cv2.COLOR_BGR2RGB)
 
     def on_click(self, x, y, button, pressed):
         # Turn on and off auto_lock
@@ -138,7 +128,7 @@ class ApexAim:
             label = self.args.label_list[cls]
             x1, y1, x2, y2 = box.tolist()
             target_x, target_y = (x1 + x2) / 2, (y1 + y2) / 2 - self.args.pos_factor * (y2 - y1)
-            move_dis = ((target_x - self.mouse_x) ** 2 + (target_y - self.mouse_y) ** 2) ** (1 / 2)
+            move_dis = ((target_x - self.detect_center_x) ** 2 + (target_y - self.detect_center_y) ** 2) ** (1 / 2)
             if label in self.args.label_lock_list and conf >= self.args.conf and move_dis < self.args.max_lock_dis:
                 target_info = {'target_x': target_x, 'target_y': target_y, 'move_dis': move_dis, 'label': label, 'conf': conf}
                 target_sort_list.append(target_info)
@@ -150,8 +140,8 @@ class ApexAim:
         target_info = min(target_sort_list, key=lambda x: (x['label'], x['move_dis']))
         target_x, target_y, move_dis = target_info['target_x'], target_info['target_y'], target_info['move_dis']
         # Compute the relative movement needed to aim at the target
-        move_rel_x = (target_x - self.mouse_x) * self.axis_move_factor
-        move_rel_y = (target_y - self.mouse_y) * self.axis_move_factor
+        move_rel_x = (target_x - self.detect_center_x) * self.axis_move_factor
+        move_rel_y = (target_y - self.detect_center_y) * self.axis_move_factor
         if move_dis > self.args.max_step_dis:
             # Limit the movement to the maximum step distance
             move_rel_x = move_rel_x / move_dis * self.args.max_step_dis
@@ -169,35 +159,35 @@ class ApexAim:
         self.pidx(0), self.pidy(0)
 
     def visualization(self, args, queue):
-        precise_sleep(1)
         while True:
             # Retrieve information from queue
-            while queue.qsize() >= 1:
-                img, xyxy_list, conf_list, cls_list, target_sort_list, fps_track = queue.get()
-            # Draw FPS on image
-            cv2.putText(img, f'FPS: {fps_track:.2f}', (10, 30), 0, 0.7, (0, 255, 0), 2)
-            # Draw detected targets
-            for xyxy, conf, cls in zip(xyxy_list, conf_list, cls_list):
-                cls_name = args.label_list[cls]
-                x1, y1, x2, y2 = xyxy.tolist()
-                label = f'{cls_name} {conf:.2f}'
-                if conf > args.conf:
-                    color = (255, 0, 0) if cls_name == 'enemy' else (0, 255, 0)
-                else:
-                    color = (0, 0, 255)
-                cv2.putText(img, label, (x1, y1 - 25), 0, 0.7, color, 2)
-                cv2.rectangle(img, (x1, y1), (x2, y2), color, 2)
-            # Draw locked target
-            if len(target_sort_list) > 0:
-                target_info = target_sort_list[0]
-                target_x, target_y, move_dis = target_info['target_x'], target_info['target_y'], target_info['move_dis']
-                cv2.circle(img, (int(target_x), int(target_y)), 5, (255, 0, 0), -1)
-                cv2.line(img, (int(self.mouse_x), int(self.mouse_y)), (int(target_x), int(target_y)), (255, 0, 0), 2)
-                cv2.putText(img, f'{move_dis:.2f}', (int(target_x), int(target_y)), 0, 0.7, (255, 0, 0), 2)
-            # Display image
-            cv2.imshow('Detection Window', cv2.cvtColor(img, cv2.COLOR_RGB2BGR))
-            if cv2.waitKey(25) & 0xFF == ord('q'):
-                cv2.destroyAllWindows()
+            if queue.qsize() > 0:
+                while queue.qsize() >= 1: # get tht latest item
+                    img, xyxy_list, conf_list, cls_list, target_sort_list, fps_track = queue.get()
+                # Draw FPS on image
+                cv2.putText(img, f'FPS: {fps_track:.2f}', (10, 30), 0, 0.7, (0, 255, 0), 2)
+                # Draw detected targets
+                for xyxy, conf, cls in zip(xyxy_list, conf_list, cls_list):
+                    cls_name = args.label_list[cls]
+                    x1, y1, x2, y2 = xyxy.tolist()
+                    label = f'{cls_name} {conf:.2f}'
+                    if conf > args.conf:
+                        color = (255, 0, 0) if cls_name == 'enemy' else (0, 255, 0)
+                    else:
+                        color = (0, 0, 255)
+                    cv2.putText(img, label, (x1, y1 - 25), 0, 0.7, color, 2)
+                    cv2.rectangle(img, (x1, y1), (x2, y2), color, 2)
+                # Draw locked target
+                if len(target_sort_list) > 0:
+                    target_info = target_sort_list[0]
+                    target_x, target_y, move_dis = target_info['target_x'], target_info['target_y'], target_info['move_dis']
+                    cv2.circle(img, (int(target_x), int(target_y)), 5, (255, 0, 0), -1)
+                    cv2.line(img, (int(self.detect_center_x), int(self.detect_center_y)), (int(target_x), int(target_y)), (255, 0, 0), 2)
+                    cv2.putText(img, f'{move_dis:.2f}', (int(target_x), int(target_y)), 0, 0.7, (255, 0, 0), 2)
+                # Display image
+                cv2.imshow('Detection Window', cv2.cvtColor(img, cv2.COLOR_RGB2BGR))
+                if cv2.waitKey(25) & 0xFF == ord('q'):
+                    cv2.destroyAllWindows()
 
     @staticmethod
     def save_screenshot(queue, dir='screenshot', freq=0.5):
