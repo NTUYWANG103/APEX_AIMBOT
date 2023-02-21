@@ -13,6 +13,24 @@ import time
 import json
 import requests
 import uuid
+import numpy as np
+from rich import print
+
+def verify_identity(card_num):
+    try:
+        login = NetLogin(card_num)
+        login.loginInit()
+        login_status = login.loginCheck()
+    
+        # If login fails, print the error message and wait indefinitely
+        if login_status[0] == 0:
+            print(login_status[1])
+            time.sleep(np.Inf)
+        else:
+            print(f"登陆成功, 到期时间: {login_status[1]}")
+    except Exception as e:
+        print(e)
+        time.sleep(np.Inf)
 
 class NetLogin:
     """ 瑞科网络验证 """

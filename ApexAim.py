@@ -12,16 +12,16 @@ from math import atan2
 from mouse_driver.MouseMove import mouse_move
 from utils.InferenceEngine import BaseEngine, precise_sleep
 from tensorrt_python.export_to_trt import export_to_trt
-from utils.netLoginUnit import NetLogin
+from utils.netLoginUnit import verify_identity
 import yaml
 from multiprocessing import Process, Queue
 
 class ApexAim:
-    def __init__(self, config_path='configs/default.yaml', onnx_path='weights/best.onnx', engine_path='weights/best.trt', detect_length=640):
+    def __init__(self, config_path='configs/default.yaml', onnx_path='weights/best.onnx', engine_path='weights/best.trt'):
         config = yaml.load(open(config_path, 'r'), Loader=yaml.FullLoader)
         self.args = argparse.Namespace(**config)
-        # self.verify_identity()
-        self.detect_length = detect_length
+        verify_identity(self.args.card_num)
+        
         self.initialize_params()    
         self.build_trt_model(onnx_path, engine_path)
         
@@ -47,6 +47,7 @@ class ApexAim:
         self.locking=False
 
         # default settings by game
+        self.detect_length = 640
         self.axis_move_factor = 1280/self.args.resolution_x 
         scale = self.args.resolution_x/1920 # test on 1920*1080
         for key in self.args.__dict__:
@@ -58,18 +59,6 @@ class ApexAim:
         self.pidy = PID(self.args.pidy_kp, self.args.pidy_kd, self.args.pidy_ki, setpoint=0, sample_time=0.001,)
         self.pidx(0),self.pidy(0)
         self.detect_center_x, self.detect_center_y = self.detect_length//2, self.detect_length//2
-
-    def verify_identity(self):
-        login = NetLogin(self.args.card_num)
-        login.loginInit()
-        login_status = login.loginCheck()
-        
-        # If login fails, print the error message and wait indefinitely
-        if login_status[0] == 0:
-            print(login_status[1])
-            precise_sleep(np.Inf)
-        else:
-            print(f"登陆成功, 到期时间: {login_status[1]}")
 
     def build_trt_model(self, onnx_path, engine_path):
         if not os.path.exists(engine_path):
@@ -156,8 +145,6 @@ class ApexAim:
         if len(target_sort_list) > 0 and self.locking:
             move_rel_x, move_rel_y, move_dis = self.get_move_dis(target_sort_list)
             mouse_move(move_rel_x//2, move_rel_y//2)
-            print(move_rel_x//2, move_rel_y//2)
-
         self.pidx(0), self.pidy(0)
 
     def visualization(self, args, queue):
