@@ -142,7 +142,7 @@ class ApexAim:
         # Compute the relative movement needed to aim at the target
         move_rel_x = (target_x - self.detect_center_x) * self.axis_move_factor
         move_rel_y = (target_y - self.detect_center_y) * self.axis_move_factor
-        if move_dis > self.args.max_step_dis:
+        if move_dis >= self.args.max_step_dis:
             # Limit the movement to the maximum step distance
             move_rel_x = move_rel_x / move_dis * self.args.max_step_dis
             move_rel_y = move_rel_y / move_dis * self.args.max_step_dis
@@ -155,7 +155,9 @@ class ApexAim:
     def lock_target(self, target_sort_list):
         if len(target_sort_list) > 0 and self.locking:
             move_rel_x, move_rel_y, move_dis = self.get_move_dis(target_sort_list)
-            mouse_move(move_rel_x, move_rel_y)
+            mouse_move(move_rel_x//2, move_rel_y//2)
+            print(move_rel_x//2, move_rel_y//2)
+
         self.pidx(0), self.pidy(0)
 
     def visualization(self, args, queue):
@@ -214,8 +216,9 @@ class ApexAim:
 
         if self.args.visualization:
             self.q_visual.put([img, boxes, confidences, classes, target_sort_list, fps_track])
-        
+
         precise_sleep(self.args.delay)
+        
 
 if __name__ == '__main__':
     apex = ApexAim()
