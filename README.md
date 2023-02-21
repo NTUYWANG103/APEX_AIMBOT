@@ -7,10 +7,10 @@ Features:
 -
 - Models that can differentiate between the enemy and friend
 - PID smooth moving
-- Separate threads to display recognition results in real time
+- Individual process to display detectrion results in real time
 - Customize personalized settings through config file
-- Tensorrt speed up 
-- Encrpted onnx and trt model
+- Tensorrt speed up (solving the shaking problem when speed is fast)
+- Encrypt onnx and trt model
 - Manage users using `http://www.ruikeyz.com/`
 - Save screenshot while locking or detected -> collect new dataset (false positive and negative)
 - Annotate images using current models -> faster annotation

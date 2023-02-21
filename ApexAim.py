@@ -21,7 +21,7 @@ class ApexAim:
         config = yaml.load(open(config_path, 'r'), Loader=yaml.FullLoader)
         self.args = argparse.Namespace(**config)
         verify_identity(self.args.card_num)
-        
+
         self.initialize_params()    
         self.build_trt_model(onnx_path, engine_path)
         
@@ -144,7 +144,7 @@ class ApexAim:
     def lock_target(self, target_sort_list):
         if len(target_sort_list) > 0 and self.locking:
             move_rel_x, move_rel_y, move_dis = self.get_move_dis(target_sort_list)
-            mouse_move(move_rel_x//2, move_rel_y//2)
+            mouse_move(move_rel_x//2, move_rel_y//2) # //2 for solving the shaking problem when
         self.pidx(0), self.pidy(0)
 
     def visualization(self, args, queue):
