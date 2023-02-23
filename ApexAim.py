@@ -79,10 +79,10 @@ class ApexAim:
         if button == getattr(Button, self.args.auto_lock_button) and pressed:
             if self.auto_lock:
                 self.auto_lock = False
-                print('自动瞄准已关闭')
+                print('---------------------自动瞄准已关闭---------------------')
             else:
                 self.auto_lock = True
-                print('自动瞄准已开启')
+                print('---------------------自动瞄准已开启---------------------')
 
         # Press the left button to turn on auto aim
         if button == getattr(Button, self.args.mouse_button) and self.auto_lock:

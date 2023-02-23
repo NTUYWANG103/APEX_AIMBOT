@@ -5,7 +5,7 @@ This is a YOLOV7 based APEX assisted targeting software
 
 Features:
 -
-- Models that can differentiate between the enemy and friend
+- Model can differentiate the enemy and friend
 - PID smooth moving
 - Individual process to display detectrion results in real time
 - Customize personalized settings through config file
