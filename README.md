@@ -3,7 +3,7 @@ This is a YOLOV7 based APEX Aimbot
 ![sample.png](sample/sample.png)
 `Note: This is an educational purposes only software, do not use it for any commercial or illegal purposes, we will not be responsible for any unauthorized usage of this software`
 
-Features:
+Features
 -
 - Model can differentiate the enemy and friend
 - PID smooth moving
