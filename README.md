@@ -39,4 +39,4 @@ Copy `cuda11.3 with tensorrt` to root dir [Click here to download](https://entue
 # Package
 `pyinstaller --key lhaksklasbjhklcvb main.py`
 
-copy '`mouse_driver/ghub_mouse.dll`' &nbsp; '`mouse_driver/msdk.dll`' &nbsp; '`configs`' &nbsp; '`weights`' &nbsp; '`cuda_11.3`' to the package directory `dist/main`
+copy `mouse_driver/ghub_mouse.dll` &nbsp; `mouse_driver/msdk.dll` &nbsp; `configs` &nbsp; `weights` &nbsp; `cuda_11.3` to the package directory `dist/main`
