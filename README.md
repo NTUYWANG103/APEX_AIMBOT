@@ -1,6 +1,6 @@
 # Introduction
-This is a YOLOV7 based APEX assisted targeting software
-
+This is a YOLOV7 based APEX Aimbot
+![sample.png](images/sample.png)
 `Note: This is an educational purposes only software, do not use it for any commercial or illegal purposes, we will not be responsible for any unauthorized usage of this software`
 
 Features:
