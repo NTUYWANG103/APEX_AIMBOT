@@ -20,7 +20,7 @@ class ApexAim:
     def __init__(self, config_path='configs/default.yaml', onnx_path='weights/best.onnx', engine_path='weights/best.trt'):
         config = yaml.load(open(config_path, 'r'), Loader=yaml.FullLoader)
         self.args = argparse.Namespace(**config)
-        verify_identity(self.args.card_num)
+        # verify_identity(self.args.card_num)
 
         self.initialize_params()    
         self.build_trt_model(onnx_path, engine_path)
@@ -135,7 +135,7 @@ class ApexAim:
             # Limit the movement to the maximum step distance
             move_rel_x = move_rel_x / move_dis * self.args.max_step_dis
             move_rel_y = move_rel_y / move_dis * self.args.max_step_dis
-        elif self.args.use_pid:
+        elif move_dis <= self.args.max_pid_dis:
             # Use a PID controller to smooth the movement
             move_rel_x = self.pidx(self.args.smooth * atan2(-move_rel_x, self.detect_length) * self.detect_length)
             move_rel_y = self.pidy(self.args.smooth * atan2(-move_rel_y, self.detect_length) * self.detect_length)

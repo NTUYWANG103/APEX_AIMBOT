@@ -7,7 +7,7 @@ Features:
 -
 - Model can differentiate the enemy and friend
 - PID smooth moving
-- Individual process to display detectrion results in real time
+- Individual process to display detection results in real time
 - Customize personalized settings through config file
 - Tensorrt speed up (solving the shaking problem when speed is fast)
 - Encrypt onnx and trt model
@@ -39,4 +39,4 @@ Copy `cuda11.3 with tensorrt` to root dir [Click here to download](`https://entu
 # Package
 `pyinstaller --key lhaksklasbjhklcvb main.py`
 
-copy `mouse_driver/ghub_mouse.dll` &nbsp; `mouse_driver/msdk.dll` &nbsp; `configs` &nbsp; `weights` &nbsp; `cuda_11.3` to the package directory
+copy '`mouse_driver/ghub_mouse.dll`' &nbsp; '`mouse_driver/msdk.dll`' &nbsp; '`configs`' &nbsp; '`weights`' &nbsp; '`cuda_11.3`' to the package directory `dist/main`
