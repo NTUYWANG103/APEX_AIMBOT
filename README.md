@@ -1,6 +1,6 @@
 # Introduction
 This is a YOLOV7 based APEX Aimbot
-![sample.png](demo/sample.png)
+![sample.png](sample/sample.png)
 `Note: This is an educational purposes only software, do not use it for any commercial or illegal purposes, we will not be responsible for any unauthorized usage of this software`
 
 Features:
@@ -25,7 +25,7 @@ pip install pipwin
 pipwin install pycuda
 pip install -r requirements.txt
 ```
-Copy `cuda11.3 with tensorrt` to root dir [Click here to download](`https://entuedu-my.sharepoint.com/:u:/g/personal/ywang103_e_ntu_edu_sg/EWaWbrkGBLNGnCTncM3kaDcB9dSY9Xr7EdvyI7aaOJanoQ?e=Jl7nTg`)
+Copy `cuda11.3 with tensorrt` to root dir [Click here to download](https://entuedu-my.sharepoint.com/:u:/g/personal/ywang103_e_ntu_edu_sg/EWaWbrkGBLNGnCTncM3kaDcB9dSY9Xr7EdvyI7aaOJanoQ?e=Jl7nTg)
 
 # Export pt to onnx
 `python export_to_onnx.py --weights weights/best.pt --grid --end2end --simplify --topk-all 12 --iou-thres 0.65 --conf-thres 0.35 --img-size 640 640`
