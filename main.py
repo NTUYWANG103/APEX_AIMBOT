@@ -9,5 +9,5 @@ if __name__ == '__main__':
     while True:
         apex.forward()
         if time.time() - heart_time > 600:
-            # apex.login.loginHeart()
+            apex.login.loginHeart()
             heart_time = time.time()

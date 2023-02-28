@@ -48,11 +48,11 @@ class ApexAim:
 
         # default settings by game
         self.detect_length = 640
-        self.axis_move_factor = 720/self.args.resolution_x # 720 for hyperparameter
-        scale = 1920/self.args.resolution_x # test on 1920*1080
+        self.smooth = self.args.smooth * 1920 / self.args.resolution_x # higher resolution requires less move
+        self.scale = self.args.resolution_x / 1920 # set hyperparameters on 1920*1080, making all resolution the same effect
         for key in self.args.__dict__:
             if 'dis' in key:
-                self.args.__dict__[key] *= scale
+                self.args.__dict__[key] *= self.scale
 
         # mouse settings
         self.pidx = PID(self.args.pidx_kp, self.args.pidx_kd, self.args.pidx_ki, setpoint=0, sample_time=0.001,)
@@ -129,16 +129,16 @@ class ApexAim:
         target_info = min(target_sort_list, key=lambda x: (x['label'], x['move_dis']))
         target_x, target_y, move_dis = target_info['target_x'], target_info['target_y'], target_info['move_dis']
         # Compute the relative movement needed to aim at the target
-        move_rel_x = (target_x - self.detect_center_x) * self.axis_move_factor
-        move_rel_y = (target_y - self.detect_center_y) * self.axis_move_factor
+        move_rel_x = (target_x - self.detect_center_x) * self.smooth
+        move_rel_y = (target_y - self.detect_center_y) * self.smooth
         if move_dis >= self.args.max_step_dis:
             # Limit the movement to the maximum step distance
             move_rel_x = move_rel_x / move_dis * self.args.max_step_dis
             move_rel_y = move_rel_y / move_dis * self.args.max_step_dis
         elif move_dis <= self.args.max_pid_dis:
             # Use a PID controller to smooth the movement
-            move_rel_x = self.pidx(self.args.smooth * atan2(-move_rel_x, self.detect_length) * self.detect_length)
-            move_rel_y = self.pidy(self.args.smooth * atan2(-move_rel_y, self.detect_length) * self.detect_length)
+            move_rel_x = self.pidx(atan2(-move_rel_x, self.detect_length) * self.detect_length)
+            move_rel_y = self.pidy(atan2(-move_rel_y, self.detect_length) * self.detect_length)
         return move_rel_x, move_rel_y, move_dis
 
     def lock_target(self, target_sort_list):

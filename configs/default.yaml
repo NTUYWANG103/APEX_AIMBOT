@@ -3,28 +3,33 @@ card_num: test-bf68347d0ad75a4c # set to the desired card number from 'ruikeyz'
 label_list: ['enemy','down','friend']
 enemy_list: ['enemy','down']
 
+# computer settings
 conf: 0.35 # confidence interval
-resolution_x: 1920 
-pos_factor: 0.2 # larger, closer to the head
-smooth: 0.7140350877192984
-max_lock_dis: 160 # auto lock if target distance smaller than this value, and press 'mouse_button' 
-max_step_dis: 80 # max movement for each iteration (more smooth)
+smooth: 0.33 # hypter parameter for moving smooth
+resolution_x: 1920  # screen horizontal resolution
 
+# lock hyperparameter
+pos_factor: 0.2 # larger, closer to the head
+max_lock_dis: 160 # auto lock if target distance smaller than this value, and press 'mouse_button' 
+max_step_dis: 800 # max movement for each iteration (more smooth)
 max_pid_dis: 30 # enanble pid control if target distance is smaller than this distance
 pidx_kp: 1.2
-pidx_kd: 7.02
+pidx_kd: 3.51
 pidx_ki: 0.0
 pidy_kp: 1.22
 pidy_kd: 0.24   
 pidy_ki: 0.0
+
+# mouse settings
 mouse_button: left # pressing this button to start auto lock
 auto_lock_button: x1 # turn on and off auto lock
-delay: 0 # sleep for each iteration
 
+# other functions
 save_screenshot: False # auto save screenshot when press 'mouse_button' (collect false negative) or detected target (collect false positive)
 visualization: True # show detection window
 speed_test: False # speed test before start
 print_button: False # show current pressed button
+delay: 0 # sleep for each iteration
 
 
 
