@@ -48,8 +48,8 @@ class ApexAim:
 
         # default settings by game
         self.detect_length = 640
-        self.axis_move_factor = 1280/self.args.resolution_x 
-        scale = self.args.resolution_x/1920 # test on 1920*1080
+        self.axis_move_factor = 720/self.args.resolution_x # 720 for hyperparameter
+        scale = 1920/self.args.resolution_x # test on 1920*1080
         for key in self.args.__dict__:
             if 'dis' in key:
                 self.args.__dict__[key] *= scale
@@ -118,7 +118,7 @@ class ApexAim:
             x1, y1, x2, y2 = box.tolist()
             target_x, target_y = (x1 + x2) / 2, (y1 + y2) / 2 - self.args.pos_factor * (y2 - y1)
             move_dis = ((target_x - self.detect_center_x) ** 2 + (target_y - self.detect_center_y) ** 2) ** (1 / 2)
-            if label in self.args.label_lock_list and conf >= self.args.conf and move_dis < self.args.max_lock_dis:
+            if label in self.args.enemy_list and conf >= self.args.conf and move_dis < self.args.max_lock_dis:
                 target_info = {'target_x': target_x, 'target_y': target_y, 'move_dis': move_dis, 'label': label, 'conf': conf}
                 target_sort_list.append(target_info)
         # Sort the list by label and then by distance
@@ -144,7 +144,7 @@ class ApexAim:
     def lock_target(self, target_sort_list):
         if len(target_sort_list) > 0 and self.locking:
             move_rel_x, move_rel_y, move_dis = self.get_move_dis(target_sort_list)
-            mouse_move(move_rel_x//2, move_rel_y//2) # //2 for solving the shaking problem when
+            mouse_move(move_rel_x, move_rel_y) # //2 for solving the shaking problem when
         self.pidx(0), self.pidy(0)
 
     def visualization(self, args, queue):
@@ -161,7 +161,7 @@ class ApexAim:
                     x1, y1, x2, y2 = xyxy.tolist()
                     label = f'{cls_name} {conf:.2f}'
                     if conf > args.conf:
-                        color = (255, 0, 0) if cls_name == 'enemy' else (0, 255, 0)
+                        color = (255, 0, 0) if cls_name in self.args.enemy_list else (0, 255, 0)
                     else:
                         color = (0, 0, 255)
                     cv2.putText(img, label, (x1, y1 - 25), 0, 0.7, color, 2)

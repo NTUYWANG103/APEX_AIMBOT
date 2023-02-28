@@ -1,7 +1,7 @@
 card_num: test-bf68347d0ad75a4c # set to the desired card number from 'ruikeyz'
 
 label_list: ['enemy','down','friend']
-label_lock_list: ['enemy','down']
+enemy_list: ['enemy','down']
 
 conf: 0.35 # confidence interval
 resolution_x: 1920 
