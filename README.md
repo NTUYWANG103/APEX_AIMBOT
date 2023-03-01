@@ -1,6 +1,7 @@
 # Introduction
-This is a YOLOV7 based APEX Aimbot
-![sample.png](sample/sample.png)
+This is a YOLOV7 based APEX and CSGO Aimbot
+![apex](sample/apex.jpg)
+![csgo](sample/csgo.jpg)
 `Note: This is an educational purposes only software, do not use it for any commercial or illegal purposes, we will not be responsible for any unauthorized usage of this software` 
 
 If you like it, please give me a star, thanks!
@@ -27,22 +28,29 @@ pip install pipwin
 pipwin install pycuda
 pip install -r requirements.txt
 ```
-Copy `cuda11.3 with tensorrt` to root dir [Click here to download](https://entuedu-my.sharepoint.com/:u:/g/personal/ywang103_e_ntu_edu_sg/EWaWbrkGBLNGnCTncM3kaDcB9dSY9Xr7EdvyI7aaOJanoQ?e=Jl7nTg)
+Copy `cuda11.3 with tensorrt` to the base directory [Click here to download](https://entuedu-my.sharepoint.com/:u:/g/personal/ywang103_e_ntu_edu_sg/EWaWbrkGBLNGnCTncM3kaDcB9dSY9Xr7EdvyI7aaOJanoQ?e=Jl7nTg)
+
 
 # Export pt to onnx (This repo provides the onnx model, thus ignore)
-`python export_to_onnx.py --weights weights/best.pt --grid --end2end --simplify --topk-all 12 --iou-thres 0.65 --conf-thres 0.35 --img-size 640 640`
+`python utils/export_pt_to_onnx.py.py --weights weights/best.pt --grid --end2end --simplify --topk-all 12 --iou-thres 0.65 --conf-thres 0.35 --img-size 640 640`
 
-# Run
-`python main.py`
+# Run 
+Running for apex (default hlod left button to auto aim):
 
-You can get the customized settings in `configs/default.yaml`, set your suitable `smooth` hyperparameter
+`python apex.py`
 
-# Annotate the dataset using current model
-`python utils/anno_imgs.py --data_dir your_dataset_dir`
+Running for csgo (default hold side button to auto aim and shoot):
+
+`python csgo.py`
+
+You can get the customized settings in `configs/apex.yaml` or `configs/csgo.yaml`, set your suitable `smooth` hyperparameter
 
 # Package
-`pyinstaller --key lhaksklasbjhklcvb main.py`
+`pyinstaller --key lhaksklasbjhklcvb apex.py`
 
-Copy `mouse_driver/ghub_mouse.dll` &nbsp; `mouse_driver/msdk.dll` &nbsp; `configs` &nbsp; `weights` &nbsp; `cuda_11.3` to the package directory `dist/main`
+Copy `mouse_driver/ghub_mouse.dll` &nbsp; `mouse_driver/msdk.dll` &nbsp; `configs` &nbsp; `weights` &nbsp; `cuda_11.3` to the package directory `dist/apex`
 
-Full version exe can [download here](https://cowtransfer.com/s/d6f008b24b7d4e) (note: due to ruikeyz verification, ip outside china might not work)
+Full version exe (apex) can [download here](https://cowtransfer.com/s/d6f008b24b7d4e) (note: due to ruikeyz verification, ip outside china might not work)
+
+# Annotate the dataset using current model
+`python utils/anno_imgs.py --data_dir your_dataset_dir --engine_path your_trt_engine_path`
