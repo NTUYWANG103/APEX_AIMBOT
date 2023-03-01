@@ -1,10 +1,11 @@
 # Introduction
 This is a YOLOV7 based APEX Aimbot
 ![sample.png](sample/sample.png)
-`Note: This is an educational purposes only software, do not use it for any commercial or illegal purposes, we will not be responsible for any unauthorized usage of this software`
+`Note: This is an educational purposes only software, do not use it for any commercial or illegal purposes, we will not be responsible for any unauthorized usage of this software` 
 
-Features
--
+If you like it, please give me a star, thanks!
+
+# Features
 - Model can differentiate the enemy and friend
 - PID smooth moving
 - Individual process to display detection results in real time
@@ -15,6 +16,7 @@ Features
 - Save screenshot while locking or detected -> collect new dataset (false positive and negative)
 - Annotate images using current models -> faster annotation
 - Package to exe
+
 # Environment
 My envrionment uses python3.7
 ```
@@ -27,11 +29,13 @@ pip install -r requirements.txt
 ```
 Copy `cuda11.3 with tensorrt` to root dir [Click here to download](https://entuedu-my.sharepoint.com/:u:/g/personal/ywang103_e_ntu_edu_sg/EWaWbrkGBLNGnCTncM3kaDcB9dSY9Xr7EdvyI7aaOJanoQ?e=Jl7nTg)
 
-# Export pt to onnx
+# Export pt to onnx (This repo provides the onnx model, thus ignore)
 `python export_to_onnx.py --weights weights/best.pt --grid --end2end --simplify --topk-all 12 --iou-thres 0.65 --conf-thres 0.35 --img-size 640 640`
 
 # Run
 `python main.py`
+
+you can get the customized settings in `configs/default.yaml`, set your suitable `smooth` hyperparameter
 
 # Annotate the dataset using current model
 `python utils/anno_imgs.py --data_dir your_dataset_dir`

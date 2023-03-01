@@ -20,7 +20,7 @@ class ApexAim:
     def __init__(self, config_path='configs/default.yaml', onnx_path='weights/best.onnx', engine_path='weights/best.trt'):
         config = yaml.load(open(config_path, 'r'), Loader=yaml.FullLoader)
         self.args = argparse.Namespace(**config)
-        # verify_identity(self.args.card_num)
+        verify_identity(self.args.card_num)
 
         self.initialize_params()    
         self.build_trt_model(onnx_path, engine_path)
