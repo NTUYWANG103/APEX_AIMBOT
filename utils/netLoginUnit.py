@@ -28,6 +28,7 @@ def verify_identity(card_num):
             time.sleep(np.Inf)
         else:
             print(f"登陆成功, 到期时间: {login_status[1]}")
+            return login
     except Exception as e:
         print(f"登陆失败 {e}")
         time.sleep(np.Inf)
