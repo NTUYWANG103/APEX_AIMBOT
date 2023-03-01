@@ -35,7 +35,7 @@ Copy `cuda11.3 with tensorrt` to root dir [Click here to download](https://entue
 # Run
 `python main.py`
 
-you can get the customized settings in `configs/default.yaml`, set your suitable `smooth` hyperparameter
+You can get the customized settings in `configs/default.yaml`, set your suitable `smooth` hyperparameter
 
 # Annotate the dataset using current model
 `python utils/anno_imgs.py --data_dir your_dataset_dir`
@@ -43,4 +43,6 @@ you can get the customized settings in `configs/default.yaml`, set your suitable
 # Package
 `pyinstaller --key lhaksklasbjhklcvb main.py`
 
-copy `mouse_driver/ghub_mouse.dll` &nbsp; `mouse_driver/msdk.dll` &nbsp; `configs` &nbsp; `weights` &nbsp; `cuda_11.3` to the package directory `dist/main`
+Copy `mouse_driver/ghub_mouse.dll` &nbsp; `mouse_driver/msdk.dll` &nbsp; `configs` &nbsp; `weights` &nbsp; `cuda_11.3` to the package directory `dist/main`
+
+Full version exe can [download here](https://cowtransfer.com/s/d6f008b24b7d4e) (note: due to ruikeyz verification, ip outside china might not work)
