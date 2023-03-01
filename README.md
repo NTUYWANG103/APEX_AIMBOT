@@ -35,7 +35,7 @@ Copy `cuda11.3 with tensorrt` to the base directory [Click here to download](htt
 `python utils/export_pt_to_onnx.py.py --weights weights/best.pt --grid --end2end --simplify --topk-all 12 --iou-thres 0.65 --conf-thres 0.35 --img-size 640 640`
 
 # Run 
-Running for apex (default hlod left button to auto aim):
+Running for apex (default hold left button to auto aim):
 
 `python apex.py`
 
