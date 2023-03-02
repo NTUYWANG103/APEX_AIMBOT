@@ -16,6 +16,7 @@ import uuid
 import numpy as np
 from rich import print
 
+sleep_long = 99999
 def verify_identity(card_num):
     try:
         login = NetLogin(card_num)
@@ -25,13 +26,13 @@ def verify_identity(card_num):
         # If login fails, print the error message and wait indefinitely
         if login_status[0] == 0:
             print(login_status[1])
-            time.sleep(np.Inf)
+            time.sleep(sleep_long)
         else:
             print(f"登陆成功, 到期时间: {login_status[1]}")
             return login
     except Exception as e:
         print(f"登陆失败 {e}")
-        time.sleep(np.Inf)
+        time.sleep(sleep_long)
 
 class NetLogin:
     """ 瑞科网络验证 """

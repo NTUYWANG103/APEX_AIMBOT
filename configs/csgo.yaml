@@ -1,7 +1,7 @@
 card_num: test-bf68347d0ad75a4c # set to the desired card number from 'ruikeyz'
 
 label_list: ['CT', 'T']
-enemy_list: ['T']
+enemy_list: ['CT']
 
 # computer settings
 conf: 0.35 # confidence interval
@@ -10,8 +10,8 @@ resolution_x: 1920  # screen horizontal resolution
 
 # lock hyperparameter
 pos_factor: 0.2 # larger, closer to the head
-max_lock_dis: 160 # auto lock if target distance smaller than this value, and press 'mouse_button' 
-max_step_dis: 80 # max movement for each iteration (more smooth)
+max_lock_dis: 320 # auto lock if target distance smaller than this value, and press 'mouse_button' 
+max_step_dis: 180 # max movement for each iteration (more smooth)
 max_pid_dis: 30 # enanble pid control if target distance is smaller than this distance
 max_shoot_dis: 50 # maximum distance to auto shoot
 pidx_kp: 1.2
