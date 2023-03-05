@@ -41,6 +41,7 @@ class AimBot:
 
         listener = Listener(on_click=self.on_click)
         listener.start()
+        print('---------------------启动完成---------------------')
     
     def initialize_params(self):
         self.auto_lock = True
