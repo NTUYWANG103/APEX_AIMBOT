@@ -9,11 +9,15 @@ class CSGOAimBot(AimBot):
     def __init__(self, config_path, onnx_path, engine_path):
         super().__init__(config_path, onnx_path, engine_path)
         self.controller =  Controller()
+
+    def initialize_params(self):
+        super().initialize_params()
+        self.smooth = self.args.smooth * 2700 / self.args.resolution_x # default settings by game
     
     def lock_target(self, target_sort_list):
         if len(target_sort_list) > 0 and self.locking:
             move_rel_x, move_rel_y, move_dis = self.get_move_dis(target_sort_list)
-            mouse_move(move_rel_x//2, move_rel_y//2) # //2 for solving the shaking problem when
+            mouse_move(move_rel_x, move_rel_y) # //2 for solving the shaking problem when
             print(move_rel_x)
             if move_dis < self.args.max_shoot_dis:
                self.controller.click(Button.left, 1)

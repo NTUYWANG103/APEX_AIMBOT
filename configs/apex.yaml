@@ -5,7 +5,7 @@ enemy_list: ['enemy','down']
 
 # computer settings
 conf: 0.45 # confidence interval
-smooth: 0.45 # hypter parameter for moving smooth
+smooth: 0.42 # hypter parameter for moving smooth
 resolution_x: 1920  # screen horizontal resolution
 
 # lock hyperparameter
