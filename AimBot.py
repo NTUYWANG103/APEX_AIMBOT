@@ -206,6 +206,7 @@ class AimBot:
             self.q_visual.put([img, boxes, confidences, classes, target_sort_list, fps_track])
 
         precise_sleep(self.args.delay)
+        return {'fps_track': fps_track}
         
 
 if __name__ == '__main__':

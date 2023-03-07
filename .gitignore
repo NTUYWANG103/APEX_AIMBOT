@@ -6,7 +6,6 @@ __pycache__/
 # C extensions
 *.so
 *.tif
-*.jpg
 *.pth
 *.mp4
 *.tiff

@@ -18,17 +18,17 @@ class CSGOAimBot(AimBot):
         if len(target_sort_list) > 0 and self.locking:
             move_rel_x, move_rel_y, move_dis = self.get_move_dis(target_sort_list)
             mouse_move(move_rel_x, move_rel_y) # //2 for solving the shaking problem when
-            print(move_rel_x)
+            print(move_dis)
             if move_dis < self.args.max_shoot_dis:
                self.controller.click(Button.left, 1)
         self.pidx(0), self.pidy(0)
 
 if __name__ == '__main__':
     multiprocessing.freeze_support()
-    apex = CSGOAimBot(config_path='configs/csgo.yaml', onnx_path='weights/best_csgo.onnx', engine_path='weights/best_csgo.trt')
+    csgo = CSGOAimBot(config_path='configs/csgo.yaml', onnx_path='weights/best_csgo.onnx', engine_path='weights/best_csgo.trt')
     heart_time = time.time()
     while True:
-        apex.forward()
+        data = csgo.forward()
         if time.time() - heart_time > 600:
-            apex.login.loginHeart()
+            # csgo.login.loginHeart()
             heart_time = time.time()
