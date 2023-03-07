@@ -15,6 +15,8 @@ from tensorrt_python.export_to_trt import export_to_trt
 from utils.netLoginUnit import verify_identity
 import yaml
 from multiprocessing import Process, Queue
+import pandas as pd
+from numba import jit
 
 class AimBot:
     def __init__(self, config_path='configs/default.yaml', onnx_path='weights/best.onnx', engine_path='weights/best.trt'):
@@ -148,36 +150,62 @@ class AimBot:
             mouse_move(move_rel_x, move_rel_y) # //2 for solving the shaking problem when
         self.pidx(0), self.pidy(0)
 
+
+    @jit(nopython=True)
+    def draw_rectangles(xyxy_list, conf_list, cls_list, label_list, conf, enemy_list):
+        labels = []
+        colors = []
+        rectangles = np.zeros((len(xyxy_list), 4), np.int32)
+        for i in range(len(xyxy_list)):
+            xyxy = xyxy_list[i]
+            conf = conf_list[i]
+            cls = cls_list[i]
+            cls_name = label_list[cls]
+            x1, y1, x2, y2 = xyxy.tolist()
+            label = f'{cls_name} {conf:.2f}'
+            if conf > conf:
+                color = (255, 0, 0) if cls_name in enemy_list else (0, 255, 0)
+            else:
+                color = (0, 0, 255)
+            labels.append(label)
+            colors.append(color)
+            rectangles[i] = np.array([x1, y1, x2, y2])
+        return labels, colors, rectangles
+
+    @jit(nopython=True)
+    def draw_target(target_sort_list, detect_center_x, detect_center_y):
+        if len(target_sort_list) == 0:
+            return None, None, None
+        target_info = target_sort_list[0]
+        target_x, target_y, move_dis = target_info['target_x'], target_info['target_y'], target_info['move_dis']
+        circle = np.array([int(target_x), int(target_y), 5], np.int32)
+        line = np.array([int(detect_center_x), int(detect_center_y), int(target_x), int(target_y)], np.int32)
+        return circle, line, move_dis
+
     def visualization(self, args, queue):
         while True:
             # Retrieve information from queue
             if queue.qsize() > 0:
                 while queue.qsize() >= 1: # get tht latest item
                     img, xyxy_list, conf_list, cls_list, target_sort_list, fps_track = queue.get()
+
                 # Draw FPS on image
                 cv2.putText(img, f'FPS: {fps_track:.2f}', (10, 30), 0, 0.7, (0, 255, 0), 2)
+
                 # Draw detected targets
-                for xyxy, conf, cls in zip(xyxy_list, conf_list, cls_list):
-                    cls_name = args.label_list[cls]
-                    x1, y1, x2, y2 = xyxy.tolist()
-                    label = f'{cls_name} {conf:.2f}'
-                    if conf > args.conf:
-                        color = (255, 0, 0) if cls_name in self.args.enemy_list else (0, 255, 0)
-                    else:
-                        color = (0, 0, 255)
-                    cv2.putText(img, label, (x1, y1 - 25), 0, 0.7, color, 2)
-                    cv2.rectangle(img, (x1, y1), (x2, y2), color, 2)
+                label_list = np.array(args.label_list)
+                enemy_list = set(args.enemy_list)
+                labels, colors, rectangles = draw_rectangles(xyxy_list, conf_list, cls_list, label_list, args.conf, enemy_list)
+                for label, color, rectangle in zip(labels, colors, rectangles):
+                    cv2.putText(img, label, (rectangle[0], rectangle[1] - 25), 0, 0.7, color, 2)
+                    cv2.rectangle(img, (rectangle[0], rectangle[1]), (rectangle[2], rectangle[3]), color, 2)
+
                 # Draw locked target
-                if len(target_sort_list) > 0:
-                    target_info = target_sort_list[0]
-                    target_x, target_y, move_dis = target_info['target_x'], target_info['target_y'], target_info['move_dis']
-                    cv2.circle(img, (int(target_x), int(target_y)), 5, (255, 0, 0), -1)
-                    cv2.line(img, (int(self.detect_center_x), int(self.detect_center_y)), (int(target_x), int(target_y)), (255, 0, 0), 2)
-                    cv2.putText(img, f'{move_dis:.2f}', (int(target_x), int(target_y)), 0, 0.7, (255, 0, 0), 2)
-                # Display image
-                cv2.imshow('Detection Window', cv2.cvtColor(img, cv2.COLOR_RGB2BGR))
-                if cv2.waitKey(25) & 0xFF == ord('q'):
-                    cv2.destroyAllWindows()
+                circle, line, move_dis = draw_target(target_sort_list, self.detect_center_x, self.detect_center_y)
+                if circle is not None:
+                    cv2.circle(img, (circle[0], circle[1]), circle[2], (255, 0, 0), -1)
+                    cv2.line(img, (line[0], line[1]), (line[2], line[3]), (255, 0, 
+
 
     @staticmethod
     def save_screenshot(queue, dir='screenshot', freq=0.5):
