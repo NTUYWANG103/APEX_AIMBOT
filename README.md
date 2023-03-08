@@ -6,6 +6,10 @@ This is a YOLOV7 based APEX and CSGO Aimbot
 
 If you like it, please give me a star, thanks!
 
+#Communication/exchange.
+If you are a Chinese user, you can join QQ group 644134220 for timely communication and exchange.
+If you have any questions about the project, you can raise them in the issues section.
+
 # Features
 - Model can differentiate the enemy and friend
 - PID smooth moving
