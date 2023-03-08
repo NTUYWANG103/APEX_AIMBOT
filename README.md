@@ -27,7 +27,7 @@ pip install pipwin
 pipwin install pycuda
 pip install -r requirements.txt
 ```
-Copy `cuda11.3 with tensorrt` to the base directory [Click here to download](https://entuedu-my.sharepoint.com/:u:/g/personal/ywang103_e_ntu_edu_sg/EWaWbrkGBLNGnCTncM3kaDcB9dSY9Xr7EdvyI7aaOJanoQ?e=Jl7nTg)
+Copy `cuda11.3 with tensorrt` to the base directory [download here](https://cowtransfer.com/s/d6f008b24b7d4e)
 
 
 # Export pt to onnx (This repo provides the onnx model, thus ignore)
@@ -49,7 +49,7 @@ You can get the customized settings in `configs/apex.yaml` or `configs/csgo.yaml
 
 Copy `mouse_driver/ghub_mouse.dll` &nbsp; `mouse_driver/msdk.dll` &nbsp; `configs` &nbsp; `weights` &nbsp; `cuda_11.3` to the package directory `dist/apex`
 
-Full version exe (apex) can [download here](https://cowtransfer.com/s/d6f008b24b7d4e) (note: due to ruikeyz verification, ip outside china might not work)
+Package .exe (apex) can [download here](https://cowtransfer.com/s/d6f008b24b7d4e) (note: due to ruikeyz verification, ip outside china might not work)
 
 # Annotate the dataset using current model
 `python utils/anno_imgs.py --data_dir your_dataset_dir --engine_path your_trt_engine_path`

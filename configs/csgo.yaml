@@ -1,7 +1,7 @@
 card_num: test-bf68347d0ad75a4c # set to the desired card number from 'ruikeyz'
 
 label_list: ['CT', 'T']
-enemy_list: ['CT']
+enemy_list: ['CT', 'T']
 
 # computer settings
 conf: 0 # confidence interval

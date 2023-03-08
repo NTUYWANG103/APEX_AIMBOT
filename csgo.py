@@ -30,5 +30,5 @@ if __name__ == '__main__':
     while True:
         data = csgo.forward()
         if time.time() - heart_time > 600:
-            # csgo.login.loginHeart()
+            csgo.login.loginHeart()
             heart_time = time.time()
