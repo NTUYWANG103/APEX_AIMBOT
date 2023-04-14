@@ -1,0 +1,57 @@
+# "label_list" contains the recognizable targets, while "enemy_list" contains the targets that need to be attacked.
+# 'label_list'中为可识别的目标，'enemy_list'中为需要攻击的目标
+label_list: ['enemy','down','friend']
+enemy_list: ['enemy','down']
+
+# General configuration, content that usually only needs to be modified.
+# 通用配置，一般只需要修改的配置内容
+# 'conf' is the threshold for model recognition, usually with a value range of 0.45 to 0.65 within the range of 0 to 1. The closer the value is to 1, the fewer misidentifications, but the recognition rate decreases.
+# 'conf'为模型识别门槛，一般值为0.45~0.65区间，取值范围为0~1区间，越靠近1误识别越少但是识别率下降
+conf: 0.45
+# 'smooth' control mouse movement smoothness, when the mouse moves too much or move the amount of insufficient to adjust the value, the value range needs to be greater than and not equal to 0
+# 'smooth'控制鼠标挪动平滑度，当鼠标移动过量或者移动量不足时调大该值，取值范围需要大于且不等于0
+smooth: 0.42
+# Game resolution
+# 游戏分辨率
+resolution_x: 1920
+
+# mouse settings
+#鼠标设置
+# 'mouse_button_n' mouse lock button, press to control the mouse to move to the AI recognition box, maximum 2 buttons
+# 'mouse_button_n'鼠标锁定按键，按下后控制鼠标挪动至AI识别框内, 最多可设置两个键
+mouse_button_1: left
+mouse_button_2: right 
+# 'auto_lock_button' mouse lock switch button, this switch controls whether the 'mouse_button' function takes effect
+# 'auto_lock_button'鼠标锁定开关按键，该开关控制'mouse_button'功能是否生效
+auto_lock_button: x1 
+
+# High-level configurations, if you are not sure what they mean, do not modify them
+# 高阶配置，如果你不清楚其中的含义，请不要修改它们
+pos_factor: 0.2 # larger, closer to the head
+max_lock_dis: 200 # auto lock if target distance smaller than this value, and press 'mouse_button' 
+max_step_dis: 120 # max movement for each iteration (more smooth)
+max_pid_dis: 30 # enanble pid control if target distance is smaller than this distance
+pidx_kp: 1.2
+pidx_kd: 3.51
+pidx_ki: 0.0
+pidy_kp: 1.22
+pidy_kd: 0.24   
+pidy_ki: 0.0
+
+# other functions
+# 其它配置
+# 'save_screenshot'auto save screenshot when press 'mouse_button' (collect false negative) or detected target (collect false positive)
+# 'save_screenshot'当按下'mouse_button'（收集假阴性）或检测到目标（收集假阳性）时自动保存屏幕截图。
+save_screenshot: False
+# 'visualization'show detection window, turn off to reduce cpu and gpu usage
+# 'visualization'可视化检测窗口，关闭以减少cpu和gpu使用率
+visualization: False
+# 'speed_test'speed test before start
+# 'speed_test'启动前的速度测试
+speed_test: False
+# 'print_button'show current pressed button
+# 'print_button'显示当前被按下的按钮
+print_button: False
+# 'delay' the interval after each loop, must be an integer
+# 'delay'每次循环后的间隔，必须为整数
+delay: 0 
