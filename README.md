@@ -1,5 +1,3 @@
-
-
 # Introduction
 This is a YOLOV7 based APEX and CSGO Aimbot
 ![apex](sample/apex.jpg)
@@ -34,19 +32,20 @@ Install cuda11.8 with tensorrt following the [NVIDIA official instructions](http
 # Run 
 Running for apex (default hold left/right button to auto aim, side button(x2) to auto aim and shoot, side button(x1) to enable and disable the AI:
 
-`python apex.py`
+```
+python apex.py
+```
 
 Running for csgo (default hold side button(x2) to auto aim and shoot, side button(x1) to enable and disable the AI):
 
-`python csgo.py`
+```
+python csgo.py
+```
 
 You can get the customized settings in `configs/apex.yaml` or `configs/csgo.yaml`, set your suitable `smooth` hyperparameter
 
 # Annotate the dataset using current model
-`python utils/anno_imgs.py --data_dir your_dataset_dir --engine_path your_trt_engine_path`
-
-# Support Author
-
-ETH/USDT (ETH/ERC20): 0x51d9a6F1323ec7ACbd015B02B4EaDa88a90473ef
-
+```
+python utils/anno_imgs.py --data_dir your_dataset_dir --engine_path your_trt_engine_path
+```
 
