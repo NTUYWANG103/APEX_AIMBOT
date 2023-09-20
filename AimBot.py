@@ -39,7 +39,7 @@ class AimBot:
 
         listener = Listener(on_click=self.on_click)
         listener.start()
-        print('---------------------启动完成---------------------')
+        print('---------------------Startup complete.---------------------')
     
     def initialize_params(self):
         self.auto_lock = True
@@ -61,7 +61,7 @@ class AimBot:
 
     def build_trt_model(self, onnx_path, engine_path):
         if not os.path.exists(engine_path):
-            print('---------------------模型制作中，第一次等待时间较长(大约 15 mins), 完成后会有文字提示---------------------')
+            print('-------The first time the model is being built, the waiting time is long (about 15 mins), and there will be a text message when it is finished.-------')
             export_to_trt(onnx=onnx_path, engine=engine_path)
 
     def initialize_camera(self):
@@ -78,37 +78,37 @@ class AimBot:
         if button == getattr(Button, self.args.auto_lock_button) and pressed:
             if self.auto_lock:
                 self.auto_lock = False
-                print('---------------------自动瞄准已关闭---------------------')
+                print('---------------------Control is off.---------------------')
             else:
                 self.auto_lock = True
-                print('---------------------自动瞄准已开启---------------------')
+                print('---------------------Control is on.---------------------')
 
         # Press the left button to turn on auto aim
         if button in [getattr(Button, self.args.mouse_button_1), getattr(Button, self.args.mouse_button_2)] and self.auto_lock:
             if pressed:
                 self.locking = True
-                print('已开启锁定...')
+                print('On...')
             else:
                 self.locking = False
-                print('已关闭锁定')
+                print('OFF')
 
         # Print button press for debugging purposes
         if self.args.print_button:
-            print(f'按键 {button.name} 已按下')
+            print(f'button  {button.name} pressed')
     
     def speed_test(self):
         t = time.time()
         for _ in range(100):
             img = self.grab_screen()
-        print(f'截图100次平均耗时: {(time.time()-t)/100:.3f}s 帧率: {100/(time.time()-t):.3f}FPS')
+        print(f'Average time for 100 screenshots: {(time.time()-t)/100:.3f}s FPS: {100/(time.time()-t):.3f}FPS')
         t = time.time()
         for _ in range(100):
             self.engine.inference(img)
-        print(f'推理100次平均耗时: {(time.time()-t)/100:.3f}s 帧率: {100/(time.time()-t):.3f}FPS')
+        print(f'Average time to reason 100 times:{(time.time()-t)/100:.3f}s FPS: {100/(time.time()-t):.3f}FPS')
         t = time.time()
         for _ in range(100):
             self.forward()
-        print(f'总体100次平均耗时: {(time.time()-t)/100:.3f}s 帧率: {100/(time.time()-t):.3f}FPS')
+        print(f'Overall 100 average time: {(time.time()-t)/100:.3f}s FPS: {100/(time.time()-t):.3f}FPS')
 
     def sort_target(self, boxes, confidences, classes):
         target_sort_list = []
