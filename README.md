@@ -7,29 +7,21 @@ This is a YOLOV7 based APEX Aimbot
 [![Stargazers over time](https://starchart.cc/NTUYWANG103/APEX_AIMBOT.svg)](https://starchart.cc/NTUYWANG103/APEX_AIMBOT)
 
 # Features
-- Enemy and Friend Differentiation:
-The model is equipped with the capability to distinguish between enemies and friends, enabling real-time responsive actions. Whether it's on a military battlefield or in security surveillance, it can automatically identify potential threats and harmless targets, thereby greatly enhancing decision-making speed and accuracy.
+- **Enemy and Friend Differentiation:** The model can distinguish between enemies and friends, enhancing decision-making in various scenarios.
+  
+- **PID Smooth Moving:** Utilizes a PID algorithm for smooth and stable movement trajectories, useful in target tracking and precision operations.
 
-- PID Smooth Moving:
-Utilizing a Proportional-Integral-Derivative (PID) algorithm, the model ensures smooth and stable movement trajectories. This feature is especially useful in target tracking or precision operations, effectively eliminating jitters caused by operational delays or hardware constraints.
+- **Real-Time Detection Results:** Displays detection results in real-time, improving user experience and providing timely data support.
 
-- Real-Time Detection Results Display:
-The system displays detection results in real-time through an independent process, allowing users to obtain key information instantly. This not only improves the user experience but also provides timely data support in emergency situations.
+- **Personalized Settings:** Users can edit the config file to customize model settings like detection sensitivity and alert thresholds.
 
-- Personalized Settings Through Config File:
-Users can personalize the model settings by editing the config file, such as detection sensitivity, alert thresholds, etc., achieving applications that better align with individual or organizational needs.
+- **TensorRT Speed Up:** Boosts model speed and solves shaking issues, especially at high speeds.
 
-- TensorRT Speed Up:
-With the application of TensorRT technology, the model significantly boosts its running speed and effectively solves the shaking problem, particularly when operating at high speeds.
+- **Model Encryption:** Offers encryption for ONNX and TRT models to prevent theft and tampering.
 
-- Model Encryption:
-The system offers encryption services for ONNX and TRT models, ensuring the safety and uniqueness of the model and preventing potential theft and tampering.
+- **Screenshot Saving:** Automatically saves screenshots during locking or detection for analysis and dataset collection.
 
-- Screenshot Saving During Locking or Detection:
-The system automatically saves screenshots when a target is locked or an anomaly is detected. This can be used for subsequent analysis and also for collecting a new dataset that includes both false positives and negatives.
-
-- Image Annotation Using Current Models:
-By annotating images using the current models, the speed of data annotation is significantly increased, further boosting the efficiency of model training.
+- **Image Annotation:** Speeds up data annotation using current models, enhancing model training efficiency.
 
 # Environment
 My envrionment uses python3.7
