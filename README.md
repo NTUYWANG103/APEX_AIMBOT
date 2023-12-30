@@ -45,6 +45,7 @@ python apex.py
 You can get the customized settings in `configs/apex.yaml`, set your suitable `smooth` hyperparameter
 
 # Annotate the dataset using current model
+This repo [link](https://github.com/NTUYWANG103/SAM-BoudingBox-Refine) refines the bounding box, enhancing the accuracy
 ```
 python utils/anno_imgs.py --data_dir your_dataset_dir --engine_path your_trt_engine_path
 ```
