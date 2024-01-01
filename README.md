@@ -7,7 +7,7 @@ This is a YOLOV7 based APEX Aimbot
 [![Stargazers over time](https://starchart.cc/NTUYWANG103/APEX_AIMBOT.svg)](https://starchart.cc/NTUYWANG103/APEX_AIMBOT)
 
 # Environment
-My envrionment uses python3.7
+My envrionment uses python 3.7
 ```
 conda create -n apex python=3.7
 conda activate apex
@@ -28,7 +28,7 @@ python apex.py
 You can get the customized settings in `configs/apex.yaml`, set your suitable `smooth` hyperparameter
 
 # Annotate the dataset using current model
-[Repo link](https://github.com/NTUYWANG103/SAM-BoudingBox-Refine) refines the bounding box, enhancing the accuracy
+This [Repo](https://github.com/NTUYWANG103/SAM-BoudingBox-Refine) refines the bounding box, enhancing the accuracy
 ```
 python utils/anno_imgs.py --data_dir your_dataset_dir --engine_path your_trt_engine_path
 ```
