@@ -9,7 +9,7 @@ This is a YOLOV7 based APEX Aimbot
 # Environment
 My envrionment uses python 3.7
 ```
-conda create -n apex python=3.7
+conda create -n apex python=3.7 -y
 conda activate apex
 pip install pipwin
 pipwin install pycuda
